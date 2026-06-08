@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WC 2026">
+<meta name="theme-color" content="#1a1a2e">
+<title>World Cup 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0f1a;--surface:#1a1a2e;--card:#1e2040;--border:#2a2d50;
+  --accent:#e94560;--gold:#f5a623;--text:#f0f0f0;--muted:#8888aa;
+  --green:#2ecc71;--blue:#3498db;--red:#e74c3c;--purple:#9b59b6;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px}
+body{display:flex;flex-direction:column;overflow:hidden}
+
+.header{background:var(--surface);padding:12px 16px 0;border-bottom:1px solid var(--border);flex-shrink:0}
+.header-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.header-top h1{font-size:17px;font-weight:700;letter-spacing:.3px}
+.trophy{font-size:22px;line-height:1}
+.subtitle{font-size:11px;color:var(--muted);margin-left:auto;white-space:nowrap}
+
+.tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 10px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;transition:color .2s,border-color .2s;letter-spacing:.3px;user-select:none}
+.tab.active{color:var(--accent);border-color:var(--accent)}
+
+.main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px}
+
+.group-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.gpill{padding:5px 11px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;user-select:none}
+.gpill.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.match-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.match-meta{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;gap:8px;align-items:center}
+.match-meta .grp-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.match-meta .round-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.match-meta .ko-badge{background:var(--gold);color:#1a1a2e;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.match-row{display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:6px;align-items:center}
+.team-name{font-size:13px;font-weight:600}
+.team-name.home{text-align:right}
+.team-name.away{text-align:left}
+.team-name.tbd{color:var(--muted);font-style:italic}
+.score-input{width:44px;height:40px;background:#0f0f1a;border:2px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield;transition:border-color .2s}
+.score-input:focus{border-color:var(--accent)}
+.score-input.filled{border-color:var(--gold);color:var(--gold)}
+.score-input:disabled{opacity:.3;cursor:not-allowed}
+.score-input::-webkit-inner-spin-button,.score-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.vs{font-size:11px;color:var(--muted);font-weight:500;padding:0 2px}
+.match-result{font-size:11px;margin-top:5px;text-align:center}
+.result-hw{color:var(--green)}
+.result-draw{color:var(--blue)}
+.result-aw{color:var(--gold)}
+
+/* Penalties row */
+.pens-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted)}
+.pens-row span{font-weight:600}
+.pen-input{width:36px;height:28px;background:#0f0f1a;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield}
+.pen-input::-webkit-inner-spin-button,.pen-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.pen-input.filled{border-color:var(--purple);color:var(--purple)}
+
+/* ET label */
+.et-label{text-align:center;font-size:10px;color:var(--purple);margin-top:4px;font-weight:600}
+
+.group-section{margin-bottom:18px}
+.group-title{font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--accent);padding:8px 12px;background:var(--card);border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;display:flex;align-items:center;gap:8px}
+.group-title span{color:var(--muted);font-size:11px;font-weight:400;margin-left:auto}
+.standings-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:0 0 8px 8px;overflow:hidden}
+.standings-table th{font-size:10px;font-weight:600;color:var(--muted);padding:6px 4px;text-align:center;background:#16182e;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
+.standings-table th.team-col{text-align:left;padding-left:10px}
+.standings-table td{font-size:12px;padding:8px 4px;text-align:center;border-bottom:1px solid #1a1c36}
+.standings-table td.team-col{text-align:left;padding-left:10px;font-weight:600;font-size:13px}
+.standings-table tr:last-child td{border-bottom:none}
+.standings-table tr.qualify td{background:#1a2a1a}
+.standings-table tr.playoff td{background:#1a1a2a}
+.standings-table tr.qualify td.pos{color:var(--green);font-weight:700}
+.standings-table tr.playoff td.pos{color:var(--blue);font-weight:700}
+.pos{color:var(--muted);font-size:11px;font-weight:700;width:20px}
+.pts{font-weight:700;color:var(--gold)}
+.gd-pos{color:var(--green)}
+.gd-neg{color:var(--red)}
+
+/* Bracket */
+.bracket-section{margin-bottom:20px}
+.bracket-title{font-size:12px;font-weight:700;letter-spacing:.8px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding:6px 10px;background:var(--card);border-radius:6px;border-left:3px solid var(--gold)}
+.bracket-match{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+.bm-label{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.bm-row{display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:6px;align-items:center}
+.bm-team{font-size:13px;font-weight:600}
+.bm-team.right{text-align:right}
+.bm-team.tbd{color:var(--muted);font-style:italic;font-size:11px}
+.bm-score{width:36px;height:34px;background:#0f0f1a;border:2px solid var(--border);border-radius:7px;color:var(--text);font-size:16px;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield;transition:border-color .2s}
+.bm-score:focus{border-color:var(--accent)}
+.bm-score.filled{border-color:var(--gold);color:var(--gold)}
+.bm-score:disabled{opacity:.25;cursor:not-allowed}
+.bm-score::-webkit-inner-spin-button,.bm-score::-webkit-outer-spin-button{-webkit-appearance:none}
+.bm-vs{font-size:10px;color:var(--muted)}
+.winner-tag{font-size:10px;color:var(--green);margin-top:4px;text-align:center;font-weight:600}
+.tbd-notice{text-align:center;font-size:12px;color:var(--muted);padding:20px;font-style:italic}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:11px}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#222;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <span class="trophy">🏆</span>
+    <h1>World Cup 2026</h1>
+    <span class="subtitle" id="progress-text">0 / 72 played</span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('fixtures')">Fixtures</div>
+    <div class="tab" onclick="switchTab('tables')">Standings</div>
+    <div class="tab" onclick="switchTab('playoffs')">Play-offs</div>
+    <div class="tab" onclick="switchTab('knockout')">Knockout</div>
+  </div>
+</div>
+
+<div class="main" id="main-content"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const RAW = {"groups":{"A":{"teams":["United States","Portugal","Brazil","Panama"],"matches":[{"id":"A0","home":"United States","away":"Portugal","date":"Jun 12"},{"id":"A1","home":"Brazil","away":"Panama","date":"Jun 13"},{"id":"A2","home":"United States","away":"Brazil","date":"Jun 16"},{"id":"A3","home":"Portugal","away":"Panama","date":"Jun 17"},{"id":"A4","home":"United States","away":"Panama","date":"Jun 21"},{"id":"A5","home":"Portugal","away":"Brazil","date":"Jun 21"}]},"B":{"teams":["Mexico","Ecuador","New Zealand","Ukraine"],"matches":[{"id":"B0","home":"Mexico","away":"Ecuador","date":"Jun 13"},{"id":"B1","home":"New Zealand","away":"Ukraine","date":"Jun 14"},{"id":"B2","home":"Mexico","away":"New Zealand","date":"Jun 17"},{"id":"B3","home":"Ecuador","away":"Ukraine","date":"Jun 18"},{"id":"B4","home":"Mexico","away":"Ukraine","date":"Jun 22"},{"id":"B5","home":"Ecuador","away":"New Zealand","date":"Jun 22"}]},"C":{"teams":["Argentina","Chile","Peru","Cameroon"],"matches":[{"id":"C0","home":"Argentina","away":"Chile","date":"Jun 14"},{"id":"C1","home":"Peru","away":"Cameroon","date":"Jun 15"},{"id":"C2","home":"Argentina","away":"Peru","date":"Jun 18"},{"id":"C3","home":"Chile","away":"Cameroon","date":"Jun 19"},{"id":"C4","home":"Argentina","away":"Cameroon","date":"Jun 23"},{"id":"C5","home":"Chile","away":"Peru","date":"Jun 23"}]},"D":{"teams":["Spain","Serbia","Morocco","Qatar"],"matches":[{"id":"D0","home":"Spain","away":"Serbia","date":"Jun 15"},{"id":"D1","home":"Morocco","away":"Qatar","date":"Jun 15"},{"id":"D2","home":"Spain","away":"Morocco","date":"Jun 19"},{"id":"D3","home":"Serbia","away":"Qatar","date":"Jun 20"},{"id":"D4","home":"Spain","away":"Qatar","date":"Jun 24"},{"id":"D5","home":"Serbia","away":"Morocco","date":"Jun 24"}]},"E":{"teams":["England","Netherlands","Turkey","Senegal"],"matches":[{"id":"E0","home":"England","away":"Netherlands","date":"Jun 16"},{"id":"E1","home":"Turkey","away":"Senegal","date":"Jun 16"},{"id":"E2","home":"England","away":"Turkey","date":"Jun 20"},{"id":"E3","home":"Netherlands","away":"Senegal","date":"Jun 21"},{"id":"E4","home":"England","away":"Senegal","date":"Jun 25"},{"id":"E5","home":"Netherlands","away":"Turkey","date":"Jun 25"}]},"F":{"teams":["France","Germany","Belgium","Algeria"],"matches":[{"id":"F0","home":"France","away":"Germany","date":"Jun 17"},{"id":"F1","home":"Belgium","away":"Algeria","date":"Jun 17"},{"id":"F2","home":"France","away":"Belgium","date":"Jun 21"},{"id":"F3","home":"Germany","away":"Algeria","date":"Jun 22"},{"id":"F4","home":"France","away":"Algeria","date":"Jun 26"},{"id":"F5","home":"Germany","away":"Belgium","date":"Jun 26"}]},"G":{"teams":["Italy","Poland","Colombia","South Korea"],"matches":[{"id":"G0","home":"Italy","away":"Poland","date":"Jun 18"},{"id":"G1","home":"Colombia","away":"South Korea","date":"Jun 18"},{"id":"G2","home":"Italy","away":"Colombia","date":"Jun 22"},{"id":"G3","home":"Poland","away":"South Korea","date":"Jun 23"},{"id":"G4","home":"Italy","away":"South Korea","date":"Jun 27"},{"id":"G5","home":"Poland","away":"Colombia","date":"Jun 27"}]},"H":{"teams":["Japan","Saudi Arabia","Canada","Costa Rica"],"matches":[{"id":"H0","home":"Japan","away":"Saudi Arabia","date":"Jun 19"},{"id":"H1","home":"Canada","away":"Costa Rica","date":"Jun 19"},{"id":"H2","home":"Japan","away":"Canada","date":"Jun 23"},{"id":"H3","home":"Saudi Arabia","away":"Costa Rica","date":"Jun 24"},{"id":"H4","home":"Japan","away":"Costa Rica","date":"Jun 28"},{"id":"H5","home":"Saudi Arabia","away":"Canada","date":"Jun 28"}]},"I":{"teams":["Uruguay","Denmark","Australia","Nigeria"],"matches":[{"id":"I0","home":"Uruguay","away":"Denmark","date":"Jun 20"},{"id":"I1","home":"Australia","away":"Nigeria","date":"Jun 20"},{"id":"I2","home":"Uruguay","away":"Australia","date":"Jun 24"},{"id":"I3","home":"Denmark","away":"Nigeria","date":"Jun 25"},{"id":"I4","home":"Uruguay","away":"Nigeria","date":"Jun 29"},{"id":"I5","home":"Denmark","away":"Australia","date":"Jun 29"}]},"J":{"teams":["Croatia","Iran","Egypt","Ivory Coast"],"matches":[{"id":"J0","home":"Croatia","away":"Iran","date":"Jun 21"},{"id":"J1","home":"Egypt","away":"Ivory Coast","date":"Jun 21"},{"id":"J2","home":"Croatia","away":"Egypt","date":"Jun 25"},{"id":"J3","home":"Iran","away":"Ivory Coast","date":"Jun 26"},{"id":"J4","home":"Croatia","away":"Ivory Coast","date":"Jun 30"},{"id":"J5","home":"Iran","away":"Egypt","date":"Jun 30"}]},"K":{"teams":["Switzerland","Hungary","Ghana","Jamaica"],"matches":[{"id":"K0","home":"Switzerland","away":"Hungary","date":"Jun 22"},{"id":"K1","home":"Ghana","away":"Jamaica","date":"Jun 22"},{"id":"K2","home":"Switzerland","away":"Ghana","date":"Jun 26"},{"id":"K3","home":"Hungary","away":"Jamaica","date":"Jun 27"},{"id":"K4","home":"Switzerland","away":"Jamaica","date":"Jul 1"},{"id":"K5","home":"Hungary","away":"Ghana","date":"Jul 1"}]},"L":{"teams":["South Africa","Russia","Honduras","Thailand"],"matches":[{"id":"L0","home":"South Africa","away":"Russia","date":"Jun 23"},{"id":"L1","home":"Honduras","away":"Thailand","date":"Jun 23"},{"id":"L2","home":"South Africa","away":"Honduras","date":"Jun 27"},{"id":"L3","home":"Russia","away":"Thailand","date":"Jun 28"},{"id":"L4","home":"South Africa","away":"Thailand","date":"Jul 2"},{"id":"L5","home":"Russia","away":"Honduras","date":"Jul 2"}]}}};
+
+// 2026 format: 12 groups of 4. Top 2 from each group (24 teams) + 8 best 3rd-place teams qualify for R32.
+// Play-offs: 12 x 3rd-place teams → 4 play-off matches → 4 more R32 qualifiers
+// Actually: all 12 third-place teams are ranked; best 8 go straight to R32.
+// The bottom 4 third-place play play-off games.
+// For simplicity here: rank all 12 3rd-place teams, top 8 advance directly, 
+// 9th-12th play two play-off matches (winners advance).
+// R32: 32 teams total.
+
+// Play-off match IDs
+const PO_IDS = ['PO1','PO2'];
+
+// Knockout round IDs: R32 (16 matches), R16 (8), QF (4), SF (2), Final (1)
+// We'll derive teams from group results + playoffs
+const KO_ROUNDS = [
+  {id:'r32', label:'Round of 32', matches: Array.from({length:16},(_,i)=>({id:`R32_${i+1}`,home:null,away:null}))},
+  {id:'r16', label:'Round of 16', matches: Array.from({length:8}, (_,i)=>({id:`R16_${i+1}`,home:null,away:null}))},
+  {id:'qf',  label:'Quarter-finals', matches: Array.from({length:4}, (_,i)=>({id:`QF_${i+1}`,home:null,away:null}))},
+  {id:'sf',  label:'Semi-finals', matches: Array.from({length:2}, (_,i)=>({id:`SF_${i+1}`,home:null,away:null}))},
+  {id:'f',   label:'Final',       matches: [{id:'FINAL',home:null,away:null}]},
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'wc2026_v3';
+let state = {scores:{}, koScores:{}, pens:{}};
+let activeTab = 'fixtures';
+let activeGroup = 'ALL';
+
+function loadState() {
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    state.scores  = state.scores  || {};
+    state.koScores= state.koScores|| {};
+    state.pens    = state.pens    || {};
+  } catch(e) { state = {scores:{},koScores:{},pens:{}}; }
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+// ─── GROUP STATS ─────────────────────────────────────────────────────────────
+function getGroupStats(gKey) {
+  const {teams, matches} = RAW.groups[gKey];
+  const s = {};
+  teams.forEach(t => s[t]={pld:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,group:gKey});
+  for (const m of matches) {
+    const sc = state.scores[m.id];
+    if (!sc || sc.hs===null||sc.as===null||sc.hs===undefined||sc.as===undefined) continue;
+    const hs=+sc.hs, as=+sc.as;
+    s[m.home].pld++; s[m.away].pld++;
+    s[m.home].gf+=hs; s[m.home].ga+=as;
+    s[m.away].gf+=as; s[m.away].ga+=hs;
+    if(hs>as){s[m.home].w++;s[m.home].pts+=3;s[m.away].l++;}
+    else if(hs<as){s[m.away].w++;s[m.away].pts+=3;s[m.home].l++;}
+    else{s[m.home].d++;s[m.home].pts++;s[m.away].d++;s[m.away].pts++;}
+  }
+  return Object.values(s).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name-b.name)
+    .map((t,i)=>({...t,gd:t.gf-t.ga,pos:i+1}));
+}
+
+function getAllGroupResults() {
+  const winners={}, runners={}, thirds=[];
+  for (const g of Object.keys(RAW.groups)) {
+    const sorted = getGroupStats(g);
+    winners[g] = sorted[0]?.name || null;
+    runners[g] = sorted[1]?.name || null;
+    if (sorted[2]) thirds.push({...sorted[2], group:g});
+  }
+  // Sort 3rd-place teams: pts → gd → gf
+  thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+  return {winners, runners, thirds};
+}
+
+function countPlayed() {
+  let n=0;
+  for(const g of Object.values(RAW.groups))
+    for(const m of g.matches){const s=state.scores[m.id];if(s&&s.hs!=null&&s.as!=null)n++;}
+  return n;
+}
+
+// ─── KNOCKOUT LOGIC ──────────────────────────────────────────────────────────
+// 2026 bracket seeding (official):
+// 32 qualifiers: A1,B1,C1,D1,E1,F1,G1,H1,I1,J1,K1,L1 (12 group winners)
+//                A2,B2,C2,D2,E2,F2,G2,H2,I2,J2,K2,L2 (12 runners-up)
+//                8 best 3rd-place teams (top 8 of 12)
+// R32 pairings (official 2026 bracket):
+const R32_PAIRINGS = [
+  ['A1','B2'],['C1','D2'],['E1','F2'],['G1','H2'],
+  ['I1','J2'],['K1','L2'],['A2','B1'],['C2','D1'],
+  ['E2','F1'],['G2','H1'],['I2','J1'],['K2','L1'],
+  ['3rd1','3rd2'],['3rd3','3rd4'],['3rd5','3rd6'],['3rd7','3rd8'],
+];
+
+// R16 pairings: winner of R32_1 vs winner of R32_2, etc.
+// QF: winners of R16_1 vs R16_2, R16_3 vs R16_4 ... etc.
+
+function getKoTeam(slot, results) {
+  const {winners, runners, thirds} = results;
+  if (!slot) return null;
+  if (slot.match(/^[A-L]1$/)) return winners[slot[0]] || null;
+  if (slot.match(/^[A-L]2$/)) return runners[slot[0]] || null;
+  if (slot.startsWith('3rd')) {
+    const idx = parseInt(slot.replace('3rd',''))-1;
+    return thirds[idx]?.name || null;
+  }
+  return null;
+}
+
+function getKoWinner(matchId) {
+  const sc = state.koScores[matchId];
+  if (!sc||sc.hs==null||sc.as==null) return null;
+  const hs=+sc.hs, as=+sc.as;
+  if (hs!==as) return hs>as ? sc.homeTeam : sc.awayTeam;
+  // Penalties
+  const p = state.pens[matchId];
+  if (p&&p.h!=null&&p.a!=null&&+p.h!==+p.a) return +p.h>+p.a ? sc.homeTeam : sc.awayTeam;
+  return null;
+}
+
+function buildR32(results) {
+  return R32_PAIRINGS.map((pair,i) => {
+    const id = `R32_${i+1}`;
+    const home = getKoTeam(pair[0], results);
+    const away = getKoTeam(pair[1], results);
+    const sc = state.koScores[id] || {};
+    return {id, home, away, homeSlot:pair[0], awaySlot:pair[1],
+            hs: sc.hs??null, as: sc.as??null,
+            homeTeam: home, awayTeam: away};
+  });
+}
+
+function buildRound(prevMatches, roundId) {
+  const matches = [];
+  for (let i=0;i<prevMatches.length;i+=2) {
+    const idx = i/2;
+    const id = `${roundId}_${idx+1}`;
+    const home = getKoWinner(prevMatches[i].id) || null;
+    const away = getKoWinner(prevMatches[i+1]?.id) || null;
+    // store teams in koScores so getKoWinner can find them
+    if (!state.koScores[id]) state.koScores[id]={};
+    state.koScores[id].homeTeam = home;
+    state.koScores[id].awayTeam = away;
+    const sc = state.koScores[id];
+    matches.push({id, home, away, homeTeam:home, awayTeam:away,
+                  hs:sc.hs??null, as:sc.as??null});
+  }
+  return matches;
+}
+
+// ─── SCORE SETTERS ───────────────────────────────────────────────────────────
+function setGroupScore(id, side, val) {
+  if (!state.scores[id]) state.scores[id]={hs:null,as:null};
+  state.scores[id][side] = val===''?null:Math.max(0,parseInt(val)||0);
+  saveState();
+  document.getElementById('progress-text').textContent=`${countPlayed()} / 72 played`;
+  if (activeTab==='tables') render();
+}
+
+function setKoScore(id, side, val, homeTeam, awayTeam) {
+  if (!state.koScores[id]) state.koScores[id]={hs:null,as:null,homeTeam,awayTeam};
+  state.koScores[id][side] = val===''?null:Math.max(0,parseInt(val)||0);
+  state.koScores[id].homeTeam=homeTeam;
+  state.koScores[id].awayTeam=awayTeam;
+  saveState();
+  render();
+}
+
+function setPens(id, side, val, homeTeam, awayTeam) {
+  if (!state.pens[id]) state.pens[id]={h:null,a:null,homeTeam,awayTeam};
+  state.pens[id][side] = val===''?null:Math.max(0,parseInt(val)||0);
+  state.pens[id].homeTeam=homeTeam;
+  state.pens[id].awayTeam=awayTeam;
+  saveState();
+  render();
+}
+
+function updateInputStyle(el){el.classList.toggle('filled',el.value!=='');}
+
+// ─── RENDER HELPERS ──────────────────────────────────────────────────────────
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['fixtures','tables','playoffs','knockout'][i]===tab);
+  });
+  render();
+}
+
+function filterGroup(g){activeGroup=g;render();}
+
+// ─── FIXTURES ────────────────────────────────────────────────────────────────
+function renderFixtures() {
+  const groups=Object.keys(RAW.groups);
+  let html=`<div class="group-filter"><div class="gpill ${activeGroup==='ALL'?'active':''}" onclick="filterGroup('ALL')">All</div>`;
+  groups.forEach(g=>html+=`<div class="gpill ${activeGroup===g?'active':''}" onclick="filterGroup('${g}')">Group ${g}</div>`);
+  html+='</div>';
+  const toShow=activeGroup==='ALL'?groups:[activeGroup];
+  for(const g of toShow){
+    for(const m of RAW.groups[g].matches){
+      const s=state.scores[m.id]||{hs:null,as:null};
+      const hv=s.hs??'', av=s.as??'';
+      const hc=s.hs!=null?'filled':'', ac=s.as!=null?'filled':'';
+      let res='';
+      if(s.hs!=null&&s.as!=null){
+        if(+s.hs>+s.as) res=`<div class="match-result result-hw">${m.home} win</div>`;
+        else if(+s.hs<+s.as) res=`<div class="match-result result-aw">${m.away} win</div>`;
+        else res=`<div class="match-result result-draw">Draw</div>`;
+      }
+      html+=`<div class="match-card">
+        <div class="match-meta"><span class="grp-badge">${g}</span><span>${m.date}</span></div>
+        <div class="match-row">
+          <div class="team-name home">${m.home}</div>
+          <input class="score-input ${hc}" type="number" min="0" value="${hv}" placeholder="–"
+            oninput="setGroupScore('${m.id}','hs',this.value);updateInputStyle(this)"
+            onfocus="this.select()" inputmode="numeric">
+          <div class="vs">vs</div>
+          <input class="score-input ${ac}" type="number" min="0" value="${av}" placeholder="–"
+            oninput="setGroupScore('${m.id}','as',this.value);updateInputStyle(this)"
+            onfocus="this.select()" inputmode="numeric">
+          <div class="team-name away">${m.away}</div>
+        </div>${res}</div>`;
+    }
+  }
+  return html;
+}
+
+// ─── TABLES ──────────────────────────────────────────────────────────────────
+function renderTables() {
+  let html=`<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span style="color:var(--muted);font-size:11px">Advance to R32</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span style="color:var(--muted);font-size:11px">Possible play-off</span></div>
+  </div>`;
+  for(const [g] of Object.entries(RAW.groups)){
+    const sorted=getGroupStats(g);
+    const played=sorted.reduce((s,t)=>s+t.pld,0)/2;
+    html+=`<div class="group-section"><div class="group-title">Group ${g}<span>${played} played</span></div>
+      <table class="standings-table"><thead><tr>
+        <th class="pos">#</th><th class="team-col">Team</th>
+        <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th class="pts">Pts</th>
+      </tr></thead><tbody>`;
+    sorted.forEach((t,i)=>{
+      const cls=i<2?'qualify':i===2?'playoff':'';
+      const gdC=t.gd>0?'gd-pos':t.gd<0?'gd-neg':'';
+      const gdS=t.pld>0?(t.gd>0?`+${t.gd}`:`${t.gd}`):'–';
+      html+=`<tr class="${cls}"><td class="pos">${i+1}</td><td class="team-col">${t.name}</td>
+        <td>${t.pld}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+        <td>${t.gf}</td><td>${t.ga}</td><td class="${gdC}">${gdS}</td><td class="pts">${t.pts}</td></tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+  return html;
+}
+
+// ─── PLAY-OFFS ───────────────────────────────────────────────────────────────
+function renderPlayoffs() {
+  const {thirds} = getAllGroupResults();
+  const allGroupsComplete = Object.keys(RAW.groups).every(g=>{
+    return RAW.groups[g].matches.every(m=>{
+      const s=state.scores[m.id];return s&&s.hs!=null&&s.as!=null;
+    });
+  });
+
+  let html=`<div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+    In the 2026 format, the <strong style="color:var(--text)">8 best 3rd-place teams</strong> from 12 groups advance directly to the Round of 32. The remaining <strong style="color:var(--text)">4 third-place teams</strong> play off for the last 4 spots.
+  </div>`;
+
+  // 3rd place rankings table
+  html+=`<div class="group-section"><div class="group-title" style="color:var(--blue)">All 3rd-place teams</div>
+    <table class="standings-table"><thead><tr>
+      <th class="pos">#</th><th class="team-col">Team</th><th>Grp</th>
+      <th>P</th><th>GD</th><th class="pts">Pts</th><th>Status</th>
+    </tr></thead><tbody>`;
+
+  thirds.forEach((t,i)=>{
+    const status = i<8
+      ? `<span style="color:var(--green);font-size:11px;font-weight:600">➜ R32</span>`
+      : `<span style="color:var(--accent);font-size:11px;font-weight:600">Play-off</span>`;
+    const cls=i<8?'qualify':'';
+    const gdS=t.pld>0?(t.gd>0?`+${t.gd}`:`${t.gd}`):'–';
+    html+=`<tr class="${cls}"><td class="pos">${i+1}</td><td class="team-col">${t.name||'TBD'}</td>
+      <td style="color:var(--muted)">${t.group}</td><td>${t.pld}</td>
+      <td class="${t.gd>0?'gd-pos':t.gd<0?'gd-neg':''}">${gdS}</td>
+      <td class="pts">${t.pts}</td><td>${status}</td></tr>`;
+  });
+
+  // Pad with TBD rows if groups not all done
+  for(let i=thirds.length;i<12;i++){
+    const status=i<8?`<span style="color:var(--green);font-size:11px">➜ R32</span>`:`<span style="color:var(--accent);font-size:11px">Play-off</span>`;
+    html+=`<tr><td class="pos">${i+1}</td><td class="team-col" style="color:var(--muted);font-style:italic">TBD</td>
+      <td>–</td><td>–</td><td>–</td><td class="pts">–</td><td>${status}</td></tr>`;
+  }
+  html+=`</tbody></table></div>`;
+
+  // Play-off matches (bottom 4 of 3rd place)
+  html+=`<div class="bracket-title">Play-off matches</div>`;
+
+  const po = [
+    {id:'PO1', home: thirds[8]?.name||null, away: thirds[11]?.name||null, label:'Play-off 1'},
+    {id:'PO2', home: thirds[9]?.name||null, away: thirds[10]?.name||null, label:'Play-off 2'},
+  ];
+
+  for(const m of po){
+    html += renderKoMatch(m, 'play-off');
+  }
+
+  return html;
+}
+
+// ─── KNOCKOUT ────────────────────────────────────────────────────────────────
+function renderKoMatch(m, type='ko') {
+  const sc = state.koScores[m.id]||{};
+  const hv=sc.hs??'', av=sc.as??'';
+  const hc=sc.hs!=null?'filled':'', ac=sc.as!=null?'filled':'';
+  const hasScore=sc.hs!=null&&sc.as!=null;
+  const isDraw=hasScore&&+sc.hs===+sc.as;
+  const p=state.pens[m.id]||{};
+  const pHv=p.h??'',pAv=p.a??'';
+  const pHc=p.h!=null?'filled':'',pAc=p.a!=null?'filled':'';
+
+  const winner=getKoWinner(m.id);
+  const homeStyle=winner&&winner===m.home?'color:var(--gold)':'';
+  const awayStyle=winner&&winner===m.away?'color:var(--gold)':'';
+  const tbd=!m.home&&!m.away;
+  const disabled=tbd?'disabled':'';
+
+  let pensHtml='';
+  if(isDraw&&type!=='group'){
+    pensHtml=`<div class="pens-row">
+      <span style="color:var(--purple);font-size:10px">Pens:</span>
+      <input class="pen-input ${pHc}" type="number" min="0" value="${pHv}" placeholder="–"
+        oninput="setPens('${m.id}','h',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
+        onfocus="this.select()" inputmode="numeric" ${disabled}>
+      <span>–</span>
+      <input class="pen-input ${pAc}" type="number" min="0" value="${pAv}" placeholder="–"
+        oninput="setPens('${m.id}','a',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
+        onfocus="this.select()" inputmode="numeric" ${disabled}>
+    </div>`;
+  }
+
+  const winnerTag=winner?`<div class="winner-tag">✓ ${winner} advance</div>`:'';
+  const badgeClass=type==='play-off'?'round-badge':'ko-badge';
+  const badgeLabel=type==='play-off'?'Play-off':'KO';
+
+  return `<div class="bracket-match">
+    <div class="bm-label">${m.label||''}</div>
+    <div class="bm-row">
+      <div class="bm-team right ${!m.home?'tbd':''}" style="${homeStyle}">${m.home||'TBD'}</div>
+      <input class="bm-score ${hc}" type="number" min="0" value="${hv}" placeholder="–"
+        oninput="setKoScore('${m.id}','hs',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
+        onfocus="this.select()" inputmode="numeric" ${disabled}>
+      <div class="bm-vs">vs</div>
+      <input class="bm-score ${ac}" type="number" min="0" value="${av}" placeholder="–"
+        oninput="setKoScore('${m.id}','as',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
+        onfocus="this.select()" inputmode="numeric" ${disabled}>
+      <div class="bm-team ${!m.away?'tbd':''}" style="${awayStyle}">${m.away||'TBD'}</div>
+    </div>
+    ${pensHtml}${winnerTag}
+  </div>`;
+}
+
+function renderKnockout() {
+  const results = getAllGroupResults();
+  const r32 = buildR32(results);
+
+  // Sync team names into koScores for winner resolution
+  r32.forEach(m=>{
+    if(!state.koScores[m.id]) state.koScores[m.id]={};
+    state.koScores[m.id].homeTeam=m.home;
+    state.koScores[m.id].awayTeam=m.away;
+  });
+
+  const r16 = buildRound(r32, 'R16');
+  const qf  = buildRound(r16, 'QF');
+  const sf  = buildRound(qf,  'SF');
+  const fin = buildRound(sf,  'FINAL');
+
+  const roundConfigs = [
+    {label:'Round of 32', matches:r32},
+    {label:'Round of 16', matches:r16},
+    {label:'Quarter-finals', matches:qf},
+    {label:'Semi-finals', matches:sf},
+    {label:'Final', matches:fin},
+  ];
+
+  let html='';
+  for(const {label,matches} of roundConfigs){
+    html+=`<div class="bracket-section"><div class="bracket-title">${label}</div>`;
+    const anyKnown=matches.some(m=>m.home||m.away);
+    if(!anyKnown && label!=='Round of 32'){
+      html+=`<div class="tbd-notice">Teams will appear once previous round results are entered</div>`;
+    } else {
+      matches.forEach((m,i)=>{
+        m.label=`Match ${i+1}`;
+        html+=renderKoMatch(m,'ko');
+      });
+    }
+    html+='</div>';
+  }
+
+  // Champion
+  const champion=getKoWinner('FINAL_1')||getKoWinner('FINAL');
+  if(champion){
+    html+=`<div style="text-align:center;padding:20px;font-size:18px;font-weight:700;color:var(--gold)">
+      🏆 ${champion}<br><span style="font-size:13px;color:var(--muted);font-weight:400">World Champions</span>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ─── MAIN RENDER ─────────────────────────────────────────────────────────────
+function render(){
+  const el=document.getElementById('main-content');
+  if(activeTab==='fixtures') el.innerHTML=renderFixtures();
+  else if(activeTab==='tables') el.innerHTML=renderTables();
+  else if(activeTab==='playoffs') el.innerHTML=renderPlayoffs();
+  else el.innerHTML=renderKnockout();
+}
+
+loadState();
+document.getElementById('progress-text').textContent=`${countPlayed()} / 72 played`;
+render();
+</script>
+</body>
+</html>
