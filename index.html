@@ -173,7 +173,7 @@ function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 function getGroupStats(gKey) {
   const {teams, matches} = RAW.groups[gKey];
   const s = {};
-  teams.forEach(t => s[t]={pld:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,group:gKey});
+  teams.forEach(t => s[t]={name:t,pld:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,group:gKey});
   for (const m of matches) {
     const sc = state.scores[m.id];
     if (!sc || sc.hs===null||sc.as===null||sc.hs===undefined||sc.as===undefined) continue;
