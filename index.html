@@ -131,7 +131,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 <script>
 // ─── DATA ────────────────────────────────────────────────────────────────────
-const RAW = {"groups":{"A":{"teams":["United States","Portugal","Brazil","Panama"],"matches":[{"id":"A0","home":"United States","away":"Portugal","date":"Jun 12"},{"id":"A1","home":"Brazil","away":"Panama","date":"Jun 13"},{"id":"A2","home":"United States","away":"Brazil","date":"Jun 16"},{"id":"A3","home":"Portugal","away":"Panama","date":"Jun 17"},{"id":"A4","home":"United States","away":"Panama","date":"Jun 21"},{"id":"A5","home":"Portugal","away":"Brazil","date":"Jun 21"}]},"B":{"teams":["Mexico","Ecuador","New Zealand","Ukraine"],"matches":[{"id":"B0","home":"Mexico","away":"Ecuador","date":"Jun 13"},{"id":"B1","home":"New Zealand","away":"Ukraine","date":"Jun 14"},{"id":"B2","home":"Mexico","away":"New Zealand","date":"Jun 17"},{"id":"B3","home":"Ecuador","away":"Ukraine","date":"Jun 18"},{"id":"B4","home":"Mexico","away":"Ukraine","date":"Jun 22"},{"id":"B5","home":"Ecuador","away":"New Zealand","date":"Jun 22"}]},"C":{"teams":["Argentina","Chile","Peru","Cameroon"],"matches":[{"id":"C0","home":"Argentina","away":"Chile","date":"Jun 14"},{"id":"C1","home":"Peru","away":"Cameroon","date":"Jun 15"},{"id":"C2","home":"Argentina","away":"Peru","date":"Jun 18"},{"id":"C3","home":"Chile","away":"Cameroon","date":"Jun 19"},{"id":"C4","home":"Argentina","away":"Cameroon","date":"Jun 23"},{"id":"C5","home":"Chile","away":"Peru","date":"Jun 23"}]},"D":{"teams":["Spain","Serbia","Morocco","Qatar"],"matches":[{"id":"D0","home":"Spain","away":"Serbia","date":"Jun 15"},{"id":"D1","home":"Morocco","away":"Qatar","date":"Jun 15"},{"id":"D2","home":"Spain","away":"Morocco","date":"Jun 19"},{"id":"D3","home":"Serbia","away":"Qatar","date":"Jun 20"},{"id":"D4","home":"Spain","away":"Qatar","date":"Jun 24"},{"id":"D5","home":"Serbia","away":"Morocco","date":"Jun 24"}]},"E":{"teams":["England","Netherlands","Turkey","Senegal"],"matches":[{"id":"E0","home":"England","away":"Netherlands","date":"Jun 16"},{"id":"E1","home":"Turkey","away":"Senegal","date":"Jun 16"},{"id":"E2","home":"England","away":"Turkey","date":"Jun 20"},{"id":"E3","home":"Netherlands","away":"Senegal","date":"Jun 21"},{"id":"E4","home":"England","away":"Senegal","date":"Jun 25"},{"id":"E5","home":"Netherlands","away":"Turkey","date":"Jun 25"}]},"F":{"teams":["France","Germany","Belgium","Algeria"],"matches":[{"id":"F0","home":"France","away":"Germany","date":"Jun 17"},{"id":"F1","home":"Belgium","away":"Algeria","date":"Jun 17"},{"id":"F2","home":"France","away":"Belgium","date":"Jun 21"},{"id":"F3","home":"Germany","away":"Algeria","date":"Jun 22"},{"id":"F4","home":"France","away":"Algeria","date":"Jun 26"},{"id":"F5","home":"Germany","away":"Belgium","date":"Jun 26"}]},"G":{"teams":["Italy","Poland","Colombia","South Korea"],"matches":[{"id":"G0","home":"Italy","away":"Poland","date":"Jun 18"},{"id":"G1","home":"Colombia","away":"South Korea","date":"Jun 18"},{"id":"G2","home":"Italy","away":"Colombia","date":"Jun 22"},{"id":"G3","home":"Poland","away":"South Korea","date":"Jun 23"},{"id":"G4","home":"Italy","away":"South Korea","date":"Jun 27"},{"id":"G5","home":"Poland","away":"Colombia","date":"Jun 27"}]},"H":{"teams":["Japan","Saudi Arabia","Canada","Costa Rica"],"matches":[{"id":"H0","home":"Japan","away":"Saudi Arabia","date":"Jun 19"},{"id":"H1","home":"Canada","away":"Costa Rica","date":"Jun 19"},{"id":"H2","home":"Japan","away":"Canada","date":"Jun 23"},{"id":"H3","home":"Saudi Arabia","away":"Costa Rica","date":"Jun 24"},{"id":"H4","home":"Japan","away":"Costa Rica","date":"Jun 28"},{"id":"H5","home":"Saudi Arabia","away":"Canada","date":"Jun 28"}]},"I":{"teams":["Uruguay","Denmark","Australia","Nigeria"],"matches":[{"id":"I0","home":"Uruguay","away":"Denmark","date":"Jun 20"},{"id":"I1","home":"Australia","away":"Nigeria","date":"Jun 20"},{"id":"I2","home":"Uruguay","away":"Australia","date":"Jun 24"},{"id":"I3","home":"Denmark","away":"Nigeria","date":"Jun 25"},{"id":"I4","home":"Uruguay","away":"Nigeria","date":"Jun 29"},{"id":"I5","home":"Denmark","away":"Australia","date":"Jun 29"}]},"J":{"teams":["Croatia","Iran","Egypt","Ivory Coast"],"matches":[{"id":"J0","home":"Croatia","away":"Iran","date":"Jun 21"},{"id":"J1","home":"Egypt","away":"Ivory Coast","date":"Jun 21"},{"id":"J2","home":"Croatia","away":"Egypt","date":"Jun 25"},{"id":"J3","home":"Iran","away":"Ivory Coast","date":"Jun 26"},{"id":"J4","home":"Croatia","away":"Ivory Coast","date":"Jun 30"},{"id":"J5","home":"Iran","away":"Egypt","date":"Jun 30"}]},"K":{"teams":["Switzerland","Hungary","Ghana","Jamaica"],"matches":[{"id":"K0","home":"Switzerland","away":"Hungary","date":"Jun 22"},{"id":"K1","home":"Ghana","away":"Jamaica","date":"Jun 22"},{"id":"K2","home":"Switzerland","away":"Ghana","date":"Jun 26"},{"id":"K3","home":"Hungary","away":"Jamaica","date":"Jun 27"},{"id":"K4","home":"Switzerland","away":"Jamaica","date":"Jul 1"},{"id":"K5","home":"Hungary","away":"Ghana","date":"Jul 1"}]},"L":{"teams":["South Africa","Russia","Honduras","Thailand"],"matches":[{"id":"L0","home":"South Africa","away":"Russia","date":"Jun 23"},{"id":"L1","home":"Honduras","away":"Thailand","date":"Jun 23"},{"id":"L2","home":"South Africa","away":"Honduras","date":"Jun 27"},{"id":"L3","home":"Russia","away":"Thailand","date":"Jun 28"},{"id":"L4","home":"South Africa","away":"Thailand","date":"Jul 2"},{"id":"L5","home":"Russia","away":"Honduras","date":"Jul 2"}]}}};
+const RAW = {"groups":{"A":{"teams":["Mexico","South Africa","South Korea","Czechia"],"matches":[{"id":"A0","home":"Mexico","away":"South Africa","date":"Jun 11"},{"id":"A1","home":"South Korea","away":"Czechia","date":"Jun 12"},{"id":"A2","home":"Mexico","away":"South Korea","date":"Jun 19"},{"id":"A3","home":"South Africa","away":"Czechia","date":"Jun 18"},{"id":"A4","home":"Mexico","away":"Czechia","date":"Jun 25"},{"id":"A5","home":"South Africa","away":"South Korea","date":"Jun 25"}]},"B":{"teams":["Canada","Bosnia-Herzegovina","Qatar","Switzerland"],"matches":[{"id":"B0","home":"Canada","away":"Bosnia-Herzegovina","date":"Jun 12"},{"id":"B1","home":"Qatar","away":"Switzerland","date":"Jun 13"},{"id":"B2","home":"Canada","away":"Qatar","date":"Jun 18"},{"id":"B3","home":"Bosnia-Herzegovina","away":"Switzerland","date":"Jun 18"},{"id":"B4","home":"Canada","away":"Switzerland","date":"Jun 24"},{"id":"B5","home":"Bosnia-Herzegovina","away":"Qatar","date":"Jun 24"}]},"C":{"teams":["Brazil","Morocco","Haiti","Scotland"],"matches":[{"id":"C0","home":"Brazil","away":"Morocco","date":"Jun 13"},{"id":"C1","home":"Haiti","away":"Scotland","date":"Jun 14"},{"id":"C2","home":"Brazil","away":"Haiti","date":"Jun 20"},{"id":"C3","home":"Morocco","away":"Scotland","date":"Jun 19"},{"id":"C4","home":"Brazil","away":"Scotland","date":"Jun 24"},{"id":"C5","home":"Morocco","away":"Haiti","date":"Jun 24"}]},"D":{"teams":["USA","Paraguay","Australia","Türkiye"],"matches":[{"id":"D0","home":"USA","away":"Paraguay","date":"Jun 13"},{"id":"D1","home":"Australia","away":"Türkiye","date":"Jun 14"},{"id":"D2","home":"USA","away":"Australia","date":"Jun 19"},{"id":"D3","home":"Paraguay","away":"Türkiye","date":"Jun 20"},{"id":"D4","home":"USA","away":"Türkiye","date":"Jun 26"},{"id":"D5","home":"Paraguay","away":"Australia","date":"Jun 26"}]},"E":{"teams":["Germany","Curaçao","Ivory Coast","Ecuador"],"matches":[{"id":"E0","home":"Germany","away":"Curaçao","date":"Jun 14"},{"id":"E1","home":"Ivory Coast","away":"Ecuador","date":"Jun 15"},{"id":"E2","home":"Germany","away":"Ivory Coast","date":"Jun 20"},{"id":"E3","home":"Ecuador","away":"Curaçao","date":"Jun 21"},{"id":"E4","home":"Germany","away":"Ecuador","date":"Jun 25"},{"id":"E5","home":"Curaçao","away":"Ivory Coast","date":"Jun 25"}]},"F":{"teams":["Netherlands","Japan","Sweden","Tunisia"],"matches":[{"id":"F0","home":"Netherlands","away":"Japan","date":"Jun 14"},{"id":"F1","home":"Sweden","away":"Tunisia","date":"Jun 15"},{"id":"F2","home":"Netherlands","away":"Sweden","date":"Jun 20"},{"id":"F3","home":"Tunisia","away":"Japan","date":"Jun 21"},{"id":"F4","home":"Netherlands","away":"Tunisia","date":"Jun 26"},{"id":"F5","home":"Japan","away":"Sweden","date":"Jun 26"}]},"G":{"teams":["Belgium","Egypt","Iran","New Zealand"],"matches":[{"id":"G0","home":"Belgium","away":"Egypt","date":"Jun 15"},{"id":"G1","home":"Iran","away":"New Zealand","date":"Jun 16"},{"id":"G2","home":"Belgium","away":"Iran","date":"Jun 21"},{"id":"G3","home":"New Zealand","away":"Egypt","date":"Jun 22"},{"id":"G4","home":"Belgium","away":"New Zealand","date":"Jun 27"},{"id":"G5","home":"Egypt","away":"Iran","date":"Jun 27"}]},"H":{"teams":["Spain","Cape Verde","Saudi Arabia","Uruguay"],"matches":[{"id":"H0","home":"Spain","away":"Cape Verde","date":"Jun 15"},{"id":"H1","home":"Saudi Arabia","away":"Uruguay","date":"Jun 15"},{"id":"H2","home":"Spain","away":"Saudi Arabia","date":"Jun 21"},{"id":"H3","home":"Uruguay","away":"Cape Verde","date":"Jun 21"},{"id":"H4","home":"Spain","away":"Uruguay","date":"Jun 27"},{"id":"H5","home":"Cape Verde","away":"Saudi Arabia","date":"Jun 27"}]},"I":{"teams":["France","Senegal","Iraq","Norway"],"matches":[{"id":"I0","home":"France","away":"Senegal","date":"Jun 16"},{"id":"I1","home":"Iraq","away":"Norway","date":"Jun 16"},{"id":"I2","home":"France","away":"Iraq","date":"Jun 22"},{"id":"I3","home":"Norway","away":"Senegal","date":"Jun 23"},{"id":"I4","home":"France","away":"Norway","date":"Jun 26"},{"id":"I5","home":"Senegal","away":"Iraq","date":"Jun 26"}]},"J":{"teams":["Argentina","Algeria","Austria","Jordan"],"matches":[{"id":"J0","home":"Argentina","away":"Algeria","date":"Jun 17"},{"id":"J1","home":"Austria","away":"Jordan","date":"Jun 17"},{"id":"J2","home":"Argentina","away":"Austria","date":"Jun 22"},{"id":"J3","home":"Algeria","away":"Jordan","date":"Jun 23"},{"id":"J4","home":"Argentina","away":"Jordan","date":"Jun 28"},{"id":"J5","home":"Algeria","away":"Austria","date":"Jun 28"}]},"K":{"teams":["Portugal","Congo DR","Uzbekistan","Colombia"],"matches":[{"id":"K0","home":"Portugal","away":"Congo DR","date":"Jun 17"},{"id":"K1","home":"Uzbekistan","away":"Colombia","date":"Jun 18"},{"id":"K2","home":"Portugal","away":"Uzbekistan","date":"Jun 23"},{"id":"K3","home":"Colombia","away":"Congo DR","date":"Jun 24"},{"id":"K4","home":"Portugal","away":"Colombia","date":"Jun 28"},{"id":"K5","home":"Congo DR","away":"Uzbekistan","date":"Jun 28"}]},"L":{"teams":["England","Croatia","Ghana","Panama"],"matches":[{"id":"L0","home":"England","away":"Croatia","date":"Jun 17"},{"id":"L1","home":"Ghana","away":"Panama","date":"Jun 18"},{"id":"L2","home":"England","away":"Ghana","date":"Jun 23"},{"id":"L3","home":"Panama","away":"Croatia","date":"Jun 24"},{"id":"L4","home":"Panama","away":"England","date":"Jun 27"},{"id":"L5","home":"Croatia","away":"Ghana","date":"Jun 27"}]}}};
 
 // 2026 format: 12 groups of 4. Top 2 from each group (24 teams) + 8 best 3rd-place teams qualify for R32.
 // Play-offs: 12 x 3rd-place teams → 4 play-off matches → 4 more R32 qualifiers
@@ -210,29 +210,81 @@ function countPlayed() {
 }
 
 // ─── KNOCKOUT LOGIC ──────────────────────────────────────────────────────────
-// 2026 bracket seeding (official):
-// 32 qualifiers: A1,B1,C1,D1,E1,F1,G1,H1,I1,J1,K1,L1 (12 group winners)
-//                A2,B2,C2,D2,E2,F2,G2,H2,I2,J2,K2,L2 (12 runners-up)
-//                8 best 3rd-place teams (top 8 of 12)
-// R32 pairings (official 2026 bracket):
-const R32_PAIRINGS = [
-  ['A1','B2'],['C1','D2'],['E1','F2'],['G1','H2'],
-  ['I1','J2'],['K1','L2'],['A2','B1'],['C2','D1'],
-  ['E2','F1'],['G2','H1'],['I2','J1'],['K2','L1'],
-  ['3rd1','3rd2'],['3rd3','3rd4'],['3rd5','3rd6'],['3rd7','3rd8'],
+// Official 2026 bracket read from FIFA schedule
+// 3rd place slots: ABCDF3, CDFGH3, CEFHI3, EHIJK3, BEFIJ3, AEHIJ3, EFGIJ3, DEIJL3
+// (ranked 1st-8th among all 3rd place teams by pts/gd/gf)
+
+// R32: 16 matches with official seedings and dates
+const R32_BRACKET = [
+  {id:'R32_1',  home:'A2',      away:'B2',      date:'Jun 28', label:''},
+  {id:'R32_2',  home:'E1',      away:'3rd_ABCDF',date:'Jun 29', label:''},
+  {id:'R32_3',  home:'F1',      away:'C2',      date:'Jun 30', label:''},
+  {id:'R32_4',  home:'C1',      away:'F2',      date:'Jun 29', label:''},
+  {id:'R32_5',  home:'I1',      away:'3rd_CDFGH',date:'Jun 30', label:''},
+  {id:'R32_6',  home:'E2',      away:'I2',      date:'Jun 30', label:''},
+  {id:'R32_7',  home:'A1',      away:'3rd_CEFHI',date:'Jul 1',  label:''},
+  {id:'R32_8',  home:'L1',      away:'3rd_EHIJK',date:'Jul 1',  label:''},
+  {id:'R32_9',  home:'D1',      away:'3rd_BEFIJ',date:'Jul 2',  label:''},
+  {id:'R32_10', home:'G1',      away:'3rd_AEHIJ',date:'Jul 1',  label:''},
+  {id:'R32_11', home:'K2',      away:'L2',      date:'Jul 3',  label:''},
+  {id:'R32_12', home:'H1',      away:'J2',      date:'Jul 2',  label:''},
+  {id:'R32_13', home:'B1',      away:'3rd_EFGIJ',date:'Jul 3', label:''},
+  {id:'R32_14', home:'J1',      away:'H2',      date:'Jul 3',  label:''},
+  {id:'R32_15', home:'K1',      away:'3rd_DEIJL',date:'Jul 4', label:''},
+  {id:'R32_16', home:'D2',      away:'G2',      date:'Jul 3',  label:''},
 ];
 
-// R16 pairings: winner of R32_1 vs winner of R32_2, etc.
-// QF: winners of R16_1 vs R16_2, R16_3 vs R16_4 ... etc.
+// R16 pairings (which R32 winners meet): from official bracket
+// R16_1: W(R32_2) vs W(R32_5)  Sat Jul 4
+// R16_2: W(R32_1) vs W(R32_3)  Sat Jul 4
+// R16_3: W(R32_4) vs W(R32_6)  Sun Jul 5
+// R16_4: W(R32_7) vs W(R32_8)  Mon Jul 6
+// R16_5: W(R32_11) vs W(R32_12) Mon Jul 6
+// R16_6: W(R32_9) vs W(R32_10) Tue Jul 7
+// R16_7: W(R32_14) vs W(R32_16) Tue Jul 7
+// R16_8: W(R32_13) vs W(R32_15) Tue Jul 7
+const R16_PAIRS = [
+  ['R32_2','R32_5','Jul 4'],
+  ['R32_1','R32_3','Jul 4'],
+  ['R32_4','R32_6','Jul 5'],
+  ['R32_7','R32_8','Jul 6'],
+  ['R32_11','R32_12','Jul 6'],
+  ['R32_9','R32_10','Jul 7'],
+  ['R32_14','R32_16','Jul 7'],
+  ['R32_13','R32_15','Jul 7'],
+];
+
+// QF pairings
+// QF_1: W(R16_1) vs W(R16_2)  Thu Jul 9
+// QF_2: W(R16_5) vs W(R16_6)  Fri Jul 10
+// QF_3: W(R16_3) vs W(R16_4)  Sat Jul 11
+// QF_4: W(R16_7) vs W(R16_8)  Sun Jul 12
+const QF_PAIRS = [
+  ['R16_1','R16_2','Jul 9'],
+  ['R16_5','R16_6','Jul 10'],
+  ['R16_3','R16_4','Jul 11'],
+  ['R16_7','R16_8','Jul 12'],
+];
+
+// SF: QF_1 winner vs QF_2 winner, QF_3 winner vs QF_4 winner
+const SF_PAIRS = [
+  ['QF_1','QF_2','Jul 15'],
+  ['QF_3','QF_4','Jul 16'],
+];
+
+// 3rd place slot resolution — ranked by pts/gd/gf among all 3rd place teams
+// Slots represent groups the 3rd place teams came from; we rank them and assign
+const THIRD_SLOTS = ['3rd_ABCDF','3rd_CDFGH','3rd_CEFHI','3rd_EHIJK','3rd_BEFIJ','3rd_AEHIJ','3rd_EFGIJ','3rd_DEIJL'];
 
 function getKoTeam(slot, results) {
   const {winners, runners, thirds} = results;
   if (!slot) return null;
   if (slot.match(/^[A-L]1$/)) return winners[slot[0]] || null;
   if (slot.match(/^[A-L]2$/)) return runners[slot[0]] || null;
-  if (slot.startsWith('3rd')) {
-    const idx = parseInt(slot.replace('3rd',''))-1;
-    return thirds[idx]?.name || null;
+  if (slot.startsWith('3rd_')) {
+    // Map to ranked 3rd place index
+    const idx = THIRD_SLOTS.indexOf(slot);
+    return idx >= 0 ? (thirds[idx]?.name || null) : null;
   }
   return null;
 }
@@ -242,40 +294,35 @@ function getKoWinner(matchId) {
   if (!sc||sc.hs==null||sc.as==null) return null;
   const hs=+sc.hs, as=+sc.as;
   if (hs!==as) return hs>as ? sc.homeTeam : sc.awayTeam;
-  // Penalties
   const p = state.pens[matchId];
   if (p&&p.h!=null&&p.a!=null&&+p.h!==+p.a) return +p.h>+p.a ? sc.homeTeam : sc.awayTeam;
   return null;
 }
 
 function buildR32(results) {
-  return R32_PAIRINGS.map((pair,i) => {
-    const id = `R32_${i+1}`;
-    const home = getKoTeam(pair[0], results);
-    const away = getKoTeam(pair[1], results);
-    const sc = state.koScores[id] || {};
-    return {id, home, away, homeSlot:pair[0], awaySlot:pair[1],
-            hs: sc.hs??null, as: sc.as??null,
-            homeTeam: home, awayTeam: away};
+  return R32_BRACKET.map(m => {
+    const home = getKoTeam(m.home, results);
+    const away = getKoTeam(m.away, results);
+    const sc = state.koScores[m.id] || {};
+    state.koScores[m.id] = {...(state.koScores[m.id]||{}), homeTeam:home, awayTeam:away};
+    return {...m, home, away, homeTeam:home, awayTeam:away,
+            hs:sc.hs??null, as:sc.as??null,
+            label:`${m.home} vs ${m.away}`};
   });
 }
 
-function buildRound(prevMatches, roundId) {
-  const matches = [];
-  for (let i=0;i<prevMatches.length;i+=2) {
-    const idx = i/2;
-    const id = `${roundId}_${idx+1}`;
-    const home = getKoWinner(prevMatches[i].id) || null;
-    const away = getKoWinner(prevMatches[i+1]?.id) || null;
-    // store teams in koScores so getKoWinner can find them
+function buildPairedRound(pairs, roundId, r32Map) {
+  return pairs.map(([idA, idB, date], i) => {
+    const id = `${roundId}_${i+1}`;
+    const home = getKoWinner(idA) || null;
+    const away = getKoWinner(idB) || null;
     if (!state.koScores[id]) state.koScores[id]={};
     state.koScores[id].homeTeam = home;
     state.koScores[id].awayTeam = away;
     const sc = state.koScores[id];
-    matches.push({id, home, away, homeTeam:home, awayTeam:away,
-                  hs:sc.hs??null, as:sc.as??null});
-  }
-  return matches;
+    return {id, home, away, homeTeam:home, awayTeam:away,
+            hs:sc.hs??null, as:sc.as??null, date, label:''};
+  });
 }
 
 // ─── SCORE SETTERS ───────────────────────────────────────────────────────────
@@ -430,14 +477,14 @@ function renderPlayoffs() {
   ];
 
   for(const m of po){
-    html += renderKoMatch(m, 'play-off');
+    html += renderKoMatch(m, 'play-off', '');
   }
 
   return html;
 }
 
 // ─── KNOCKOUT ────────────────────────────────────────────────────────────────
-function renderKoMatch(m, type='ko') {
+function renderKoMatch(m, type='ko', dateStr='') {
   const sc = state.koScores[m.id]||{};
   const hv=sc.hs??'', av=sc.as??'';
   const hc=sc.hs!=null?'filled':'', ac=sc.as!=null?'filled':'';
@@ -472,7 +519,7 @@ function renderKoMatch(m, type='ko') {
   const badgeLabel=type==='play-off'?'Play-off':'KO';
 
   return `<div class="bracket-match">
-    <div class="bm-label">${m.label||''}</div>
+    <div class="bm-label">${m.label||''}${dateStr}</div>
     <div class="bm-row">
       <div class="bm-team right ${!m.home?'tbd':''}" style="${homeStyle}">${m.home||'TBD'}</div>
       <input class="bm-score ${hc}" type="number" min="0" value="${hv}" placeholder="–"
@@ -491,47 +538,44 @@ function renderKoMatch(m, type='ko') {
 function renderKnockout() {
   const results = getAllGroupResults();
   const r32 = buildR32(results);
+  const r16 = buildPairedRound(R16_PAIRS, 'R16');
+  const qf  = buildPairedRound(QF_PAIRS,  'QF');
+  const sf  = buildPairedRound(SF_PAIRS,  'SF');
 
-  // Sync team names into koScores for winner resolution
-  r32.forEach(m=>{
-    if(!state.koScores[m.id]) state.koScores[m.id]={};
-    state.koScores[m.id].homeTeam=m.home;
-    state.koScores[m.id].awayTeam=m.away;
-  });
-
-  const r16 = buildRound(r32, 'R16');
-  const qf  = buildRound(r16, 'QF');
-  const sf  = buildRound(qf,  'SF');
-  const fin = buildRound(sf,  'FINAL');
+  // Final
+  const finId = 'FINAL_1';
+  if(!state.koScores[finId]) state.koScores[finId]={};
+  state.koScores[finId].homeTeam = getKoWinner('SF_1')||null;
+  state.koScores[finId].awayTeam = getKoWinner('SF_2')||null;
+  const fsc = state.koScores[finId];
+  const fin = [{id:finId, home:fsc.homeTeam, away:fsc.awayTeam,
+                homeTeam:fsc.homeTeam, awayTeam:fsc.awayTeam,
+                hs:fsc.hs??null, as:fsc.as??null, date:'Jul 19', label:''}];
 
   const roundConfigs = [
     {label:'Round of 32', matches:r32},
     {label:'Round of 16', matches:r16},
     {label:'Quarter-finals', matches:qf},
     {label:'Semi-finals', matches:sf},
-    {label:'Final', matches:fin},
+    {label:'Final 🏆', matches:fin},
   ];
 
   let html='';
   for(const {label,matches} of roundConfigs){
     html+=`<div class="bracket-section"><div class="bracket-title">${label}</div>`;
-    const anyKnown=matches.some(m=>m.home||m.away);
-    if(!anyKnown && label!=='Round of 32'){
-      html+=`<div class="tbd-notice">Teams will appear once previous round results are entered</div>`;
-    } else {
-      matches.forEach((m,i)=>{
-        m.label=`Match ${i+1}`;
-        html+=renderKoMatch(m,'ko');
-      });
-    }
+    matches.forEach((m,i)=>{
+      // Build a readable label from the seeding
+      const dateStr = m.date ? `<span style="color:var(--muted);font-size:10px;font-weight:400;margin-left:6px">${m.date}</span>` : '';
+      m.label = m.label || `Match ${i+1}`;
+      html+=renderKoMatch(m,'ko', dateStr);
+    });
     html+='</div>';
   }
 
-  // Champion
-  const champion=getKoWinner('FINAL_1')||getKoWinner('FINAL');
+  const champion=getKoWinner('FINAL_1');
   if(champion){
-    html+=`<div style="text-align:center;padding:20px;font-size:18px;font-weight:700;color:var(--gold)">
-      🏆 ${champion}<br><span style="font-size:13px;color:var(--muted);font-weight:400">World Champions</span>
+    html+=`<div style="text-align:center;padding:24px;font-size:20px;font-weight:700;color:var(--gold)">
+      🏆 ${champion}<br><span style="font-size:13px;color:var(--muted);font-weight:400;margin-top:4px;display:block">World Champions 2026</span>
     </div>`;
   }
 
