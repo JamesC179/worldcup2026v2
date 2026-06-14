@@ -758,10 +758,12 @@ function renderKoMatch(m, type='ko', dateStr='') {
     pensHtml=`<div class="pens-row">
       <span style="color:var(--purple);font-size:10px">Pens:</span>
       <input class="pen-input ${pHc}" type="number" min="0" value="${pHv}" placeholder="–"
+        data-field="pen-${m.id}-h"
         oninput="setPens('${m.id}','h',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
         onfocus="this.select()" inputmode="numeric" ${disabled}>
       <span>–</span>
       <input class="pen-input ${pAc}" type="number" min="0" value="${pAv}" placeholder="–"
+        data-field="pen-${m.id}-a"
         oninput="setPens('${m.id}','a',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
         onfocus="this.select()" inputmode="numeric" ${disabled}>
     </div>`;
@@ -798,10 +800,12 @@ function renderKoMatch(m, type='ko', dateStr='') {
     <div class="bm-row">
       <div class="bm-team right ${!m.home?'tbd':''}" style="${homeStyle}">${m.home||'TBD'}</div>
       <input class="bm-score ${hc}" type="number" min="0" value="${hv}" placeholder="–"
+        data-field="ko-${m.id}-hs"
         oninput="setKoScore('${m.id}','hs',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
         onfocus="this.select()" inputmode="numeric" ${disabled}>
       <div class="bm-vs">vs</div>
       <input class="bm-score ${ac}" type="number" min="0" value="${av}" placeholder="–"
+        data-field="ko-${m.id}-as"
         oninput="setKoScore('${m.id}','as',this.value,'${m.home||''}','${m.away||''}');updateInputStyle(this)"
         onfocus="this.select()" inputmode="numeric" ${disabled}>
       <div class="bm-team ${!m.away?'tbd':''}" style="${awayStyle}">${m.away||'TBD'}</div>
@@ -959,10 +963,26 @@ function renderKoWallchart(R){
 // ─── MAIN RENDER ─────────────────────────────────────────────────────────────
 function render(){
   const el=document.getElementById('main-content');
+  // Preserve scroll position and the focused input across the re-render
+  const scrollY = el ? el.scrollTop : 0;
+  const active = document.activeElement;
+  let focusKey = null;
+  if(active && active.dataset && active.dataset.field){
+    focusKey = active.dataset.field;
+  }
+
   if(activeTab==='fixtures') el.innerHTML=renderFixtures();
   else if(activeTab==='tables') el.innerHTML=renderTables();
   else if(activeTab==='playoffs') el.innerHTML=renderPlayoffs();
   else el.innerHTML=renderKnockout();
+
+  // Restore scroll
+  if(el) el.scrollTop = scrollY;
+  // Restore focus to the same input
+  if(focusKey){
+    const restore = el.querySelector(`[data-field="${focusKey}"]`);
+    if(restore){ restore.focus(); if(restore.select) restore.select(); }
+  }
 }
 
 loadState();
