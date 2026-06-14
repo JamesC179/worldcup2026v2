@@ -40,6 +40,31 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .match-meta .grp-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
 .match-meta .round-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
 .match-meta .ko-badge{background:var(--gold);color:#1a1a2e;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px}
+.match-meta .kickoff{margin-left:auto;font-weight:700;color:var(--gold);font-size:12px}
+.date-header{font-size:13px;font-weight:700;color:var(--text);letter-spacing:.5px;margin:14px 2px 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.date-header:first-of-type{margin-top:0}
+.tz-note{text-align:center;font-size:11px;color:var(--muted);font-style:italic;margin:16px 0 8px}
+
+/* Predictor */
+.predictor-banner{background:linear-gradient(135deg,#241b3a,#1a1a2e);border:1px solid var(--purple);border-radius:14px;padding:14px;margin-bottom:14px}
+.pb-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px}
+.pb-stats{display:flex;gap:8px}
+.pb-stat{flex:1;text-align:center;background:rgba(155,89,182,.12);border-radius:10px;padding:8px 4px}
+.pb-num{display:block;font-size:20px;font-weight:800;color:var(--purple)}
+.pb-stat:first-child .pb-num{color:var(--gold)}
+.pb-lbl{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pb-note{font-size:10px;color:var(--muted);text-align:center;margin-top:9px;font-style:italic}
+.pred-row{display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.pred-label{font-size:11px;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.pred-input{width:34px;height:30px;background:#0f0f1a;border:1.5px solid var(--border);border-radius:7px;color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield;transition:border-color .2s}
+.pred-input:focus{border-color:var(--purple)}
+.pred-input.pred-filled{border-color:var(--purple);color:var(--purple)}
+.pred-input::-webkit-inner-spin-button,.pred-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.pred-dash{color:var(--muted);font-size:12px}
+.pred-badge{margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
+.pred-3{background:rgba(46,204,113,.18);color:var(--green)}
+.pred-1{background:rgba(52,152,219,.18);color:var(--blue)}
+.pred-0{background:rgba(231,76,60,.15);color:var(--red)}
 .match-row{display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:6px;align-items:center}
 .team-name{font-size:13px;font-weight:600}
 .team-name.home{text-align:right}
@@ -121,7 +146,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
   <div class="tabs">
     <div class="tab active" onclick="switchTab('fixtures')">Fixtures</div>
     <div class="tab" onclick="switchTab('tables')">Standings</div>
-    <div class="tab" onclick="switchTab('playoffs')">Play-offs</div>
+    <div class="tab" onclick="switchTab('playoffs')">3rd Placed</div>
     <div class="tab" onclick="switchTab('knockout')">Knockout</div>
   </div>
 </div>
@@ -131,7 +156,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 <script>
 // ─── DATA ────────────────────────────────────────────────────────────────────
-const RAW = {"groups":{"A":{"teams":["Mexico","South Africa","South Korea","Czechia"],"matches":[{"id":"A0","home":"Mexico","away":"South Africa","date":"Jun 11"},{"id":"A1","home":"South Korea","away":"Czechia","date":"Jun 12"},{"id":"A2","home":"Mexico","away":"South Korea","date":"Jun 19"},{"id":"A3","home":"South Africa","away":"Czechia","date":"Jun 18"},{"id":"A4","home":"Mexico","away":"Czechia","date":"Jun 25"},{"id":"A5","home":"South Africa","away":"South Korea","date":"Jun 25"}]},"B":{"teams":["Canada","Bosnia-Herzegovina","Qatar","Switzerland"],"matches":[{"id":"B0","home":"Canada","away":"Bosnia-Herzegovina","date":"Jun 12"},{"id":"B1","home":"Qatar","away":"Switzerland","date":"Jun 13"},{"id":"B2","home":"Canada","away":"Qatar","date":"Jun 18"},{"id":"B3","home":"Bosnia-Herzegovina","away":"Switzerland","date":"Jun 18"},{"id":"B4","home":"Canada","away":"Switzerland","date":"Jun 24"},{"id":"B5","home":"Bosnia-Herzegovina","away":"Qatar","date":"Jun 24"}]},"C":{"teams":["Brazil","Morocco","Haiti","Scotland"],"matches":[{"id":"C0","home":"Brazil","away":"Morocco","date":"Jun 13"},{"id":"C1","home":"Haiti","away":"Scotland","date":"Jun 14"},{"id":"C2","home":"Brazil","away":"Haiti","date":"Jun 20"},{"id":"C3","home":"Morocco","away":"Scotland","date":"Jun 19"},{"id":"C4","home":"Brazil","away":"Scotland","date":"Jun 24"},{"id":"C5","home":"Morocco","away":"Haiti","date":"Jun 24"}]},"D":{"teams":["USA","Paraguay","Australia","Türkiye"],"matches":[{"id":"D0","home":"USA","away":"Paraguay","date":"Jun 13"},{"id":"D1","home":"Australia","away":"Türkiye","date":"Jun 14"},{"id":"D2","home":"USA","away":"Australia","date":"Jun 19"},{"id":"D3","home":"Paraguay","away":"Türkiye","date":"Jun 20"},{"id":"D4","home":"USA","away":"Türkiye","date":"Jun 26"},{"id":"D5","home":"Paraguay","away":"Australia","date":"Jun 26"}]},"E":{"teams":["Germany","Curaçao","Ivory Coast","Ecuador"],"matches":[{"id":"E0","home":"Germany","away":"Curaçao","date":"Jun 14"},{"id":"E1","home":"Ivory Coast","away":"Ecuador","date":"Jun 15"},{"id":"E2","home":"Germany","away":"Ivory Coast","date":"Jun 20"},{"id":"E3","home":"Ecuador","away":"Curaçao","date":"Jun 21"},{"id":"E4","home":"Germany","away":"Ecuador","date":"Jun 25"},{"id":"E5","home":"Curaçao","away":"Ivory Coast","date":"Jun 25"}]},"F":{"teams":["Netherlands","Japan","Sweden","Tunisia"],"matches":[{"id":"F0","home":"Netherlands","away":"Japan","date":"Jun 14"},{"id":"F1","home":"Sweden","away":"Tunisia","date":"Jun 15"},{"id":"F2","home":"Netherlands","away":"Sweden","date":"Jun 20"},{"id":"F3","home":"Tunisia","away":"Japan","date":"Jun 21"},{"id":"F4","home":"Netherlands","away":"Tunisia","date":"Jun 26"},{"id":"F5","home":"Japan","away":"Sweden","date":"Jun 26"}]},"G":{"teams":["Belgium","Egypt","Iran","New Zealand"],"matches":[{"id":"G0","home":"Belgium","away":"Egypt","date":"Jun 15"},{"id":"G1","home":"Iran","away":"New Zealand","date":"Jun 16"},{"id":"G2","home":"Belgium","away":"Iran","date":"Jun 21"},{"id":"G3","home":"New Zealand","away":"Egypt","date":"Jun 22"},{"id":"G4","home":"Belgium","away":"New Zealand","date":"Jun 27"},{"id":"G5","home":"Egypt","away":"Iran","date":"Jun 27"}]},"H":{"teams":["Spain","Cape Verde","Saudi Arabia","Uruguay"],"matches":[{"id":"H0","home":"Spain","away":"Cape Verde","date":"Jun 15"},{"id":"H1","home":"Saudi Arabia","away":"Uruguay","date":"Jun 15"},{"id":"H2","home":"Spain","away":"Saudi Arabia","date":"Jun 21"},{"id":"H3","home":"Uruguay","away":"Cape Verde","date":"Jun 21"},{"id":"H4","home":"Spain","away":"Uruguay","date":"Jun 27"},{"id":"H5","home":"Cape Verde","away":"Saudi Arabia","date":"Jun 27"}]},"I":{"teams":["France","Senegal","Iraq","Norway"],"matches":[{"id":"I0","home":"France","away":"Senegal","date":"Jun 16"},{"id":"I1","home":"Iraq","away":"Norway","date":"Jun 16"},{"id":"I2","home":"France","away":"Iraq","date":"Jun 22"},{"id":"I3","home":"Norway","away":"Senegal","date":"Jun 23"},{"id":"I4","home":"France","away":"Norway","date":"Jun 26"},{"id":"I5","home":"Senegal","away":"Iraq","date":"Jun 26"}]},"J":{"teams":["Argentina","Algeria","Austria","Jordan"],"matches":[{"id":"J0","home":"Argentina","away":"Algeria","date":"Jun 17"},{"id":"J1","home":"Austria","away":"Jordan","date":"Jun 17"},{"id":"J2","home":"Argentina","away":"Austria","date":"Jun 22"},{"id":"J3","home":"Algeria","away":"Jordan","date":"Jun 23"},{"id":"J4","home":"Argentina","away":"Jordan","date":"Jun 28"},{"id":"J5","home":"Algeria","away":"Austria","date":"Jun 28"}]},"K":{"teams":["Portugal","Congo DR","Uzbekistan","Colombia"],"matches":[{"id":"K0","home":"Portugal","away":"Congo DR","date":"Jun 17"},{"id":"K1","home":"Uzbekistan","away":"Colombia","date":"Jun 18"},{"id":"K2","home":"Portugal","away":"Uzbekistan","date":"Jun 23"},{"id":"K3","home":"Colombia","away":"Congo DR","date":"Jun 24"},{"id":"K4","home":"Portugal","away":"Colombia","date":"Jun 28"},{"id":"K5","home":"Congo DR","away":"Uzbekistan","date":"Jun 28"}]},"L":{"teams":["England","Croatia","Ghana","Panama"],"matches":[{"id":"L0","home":"England","away":"Croatia","date":"Jun 17"},{"id":"L1","home":"Ghana","away":"Panama","date":"Jun 18"},{"id":"L2","home":"England","away":"Ghana","date":"Jun 23"},{"id":"L3","home":"Panama","away":"Croatia","date":"Jun 24"},{"id":"L4","home":"Panama","away":"England","date":"Jun 27"},{"id":"L5","home":"Croatia","away":"Ghana","date":"Jun 27"}]}}};
+const RAW = {"groups":{"A":{"teams":["Mexico","South Africa","South Korea","Czech Republic"],"matches":[{"id":"A0","home":"Mexico","away":"South Africa","date":"Jun 11","time":"20:00","sk":6112000},{"id":"A1","home":"South Korea","away":"Czech Republic","date":"Jun 12","time":"03:00","sk":6120300},{"id":"A2","home":"Czech Republic","away":"South Africa","date":"Jun 18","time":"17:00","sk":6181700},{"id":"A3","home":"Mexico","away":"South Korea","date":"Jun 19","time":"02:00","sk":6190200},{"id":"A4","home":"South Africa","away":"South Korea","date":"Jun 25","time":"02:00","sk":6250200},{"id":"A5","home":"Czech Republic","away":"Mexico","date":"Jun 25","time":"02:00","sk":6250200}]},"B":{"teams":["Canada","Bosnia & Herzegovina","Qatar","Switzerland"],"matches":[{"id":"B0","home":"Canada","away":"Bosnia & Herzegovina","date":"Jun 12","time":"20:00","sk":6122000},{"id":"B1","home":"Qatar","away":"Switzerland","date":"Jun 13","time":"20:00","sk":6132000},{"id":"B2","home":"Switzerland","away":"Bosnia & Herzegovina","date":"Jun 18","time":"20:00","sk":6182000},{"id":"B3","home":"Canada","away":"Qatar","date":"Jun 18","time":"23:00","sk":6182300},{"id":"B4","home":"Switzerland","away":"Canada","date":"Jun 24","time":"20:00","sk":6242000},{"id":"B5","home":"Bosnia & Herzegovina","away":"Qatar","date":"Jun 24","time":"20:00","sk":6242000}]},"C":{"teams":["Brazil","Morocco","Haiti","Scotland"],"matches":[{"id":"C0","home":"Brazil","away":"Morocco","date":"Jun 13","time":"23:00","sk":6132300},{"id":"C1","home":"Haiti","away":"Scotland","date":"Jun 14","time":"02:00","sk":6140200},{"id":"C2","home":"Scotland","away":"Morocco","date":"Jun 19","time":"23:00","sk":6192300},{"id":"C3","home":"Brazil","away":"Haiti","date":"Jun 20","time":"01:30","sk":6200130},{"id":"C4","home":"Morocco","away":"Haiti","date":"Jun 24","time":"23:00","sk":6242300},{"id":"C5","home":"Scotland","away":"Brazil","date":"Jun 24","time":"23:00","sk":6242300}]},"D":{"teams":["USA","Paraguay","Australia","Turkey"],"matches":[{"id":"D0","home":"USA","away":"Paraguay","date":"Jun 13","time":"02:00","sk":6130200},{"id":"D1","home":"Australia","away":"Turkey","date":"Jun 14","time":"05:00","sk":6140500},{"id":"D2","home":"USA","away":"Australia","date":"Jun 19","time":"20:00","sk":6192000},{"id":"D3","home":"Turkey","away":"Paraguay","date":"Jun 20","time":"04:00","sk":6200400},{"id":"D4","home":"Turkey","away":"USA","date":"Jun 26","time":"03:00","sk":6260300},{"id":"D5","home":"Paraguay","away":"Australia","date":"Jun 26","time":"03:00","sk":6260300}]},"E":{"teams":["Germany","Curacao","Ivory Coast","Ecuador"],"matches":[{"id":"E0","home":"Germany","away":"Curacao","date":"Jun 14","time":"18:00","sk":6141800},{"id":"E1","home":"Ivory Coast","away":"Ecuador","date":"Jun 15","time":"00:00","sk":6150000},{"id":"E2","home":"Germany","away":"Ivory Coast","date":"Jun 20","time":"21:00","sk":6202100},{"id":"E3","home":"Ecuador","away":"Curacao","date":"Jun 21","time":"01:00","sk":6210100},{"id":"E4","home":"Curacao","away":"Ivory Coast","date":"Jun 25","time":"21:00","sk":6252100},{"id":"E5","home":"Ecuador","away":"Germany","date":"Jun 25","time":"21:00","sk":6252100}]},"F":{"teams":["Netherlands","Japan","Sweden","Tunisia"],"matches":[{"id":"F0","home":"Netherlands","away":"Japan","date":"Jun 14","time":"21:00","sk":6142100},{"id":"F1","home":"Sweden","away":"Tunisia","date":"Jun 15","time":"03:00","sk":6150300},{"id":"F2","home":"Netherlands","away":"Sweden","date":"Jun 20","time":"18:00","sk":6201800},{"id":"F3","home":"Tunisia","away":"Japan","date":"Jun 21","time":"05:00","sk":6210500},{"id":"F4","home":"Tunisia","away":"Netherlands","date":"Jun 26","time":"00:00","sk":6260000},{"id":"F5","home":"Japan","away":"Sweden","date":"Jun 26","time":"00:00","sk":6260000}]},"G":{"teams":["Belgium","Egypt","Iran","New Zealand"],"matches":[{"id":"G0","home":"Belgium","away":"Egypt","date":"Jun 15","time":"20:00","sk":6152000},{"id":"G1","home":"Iran","away":"New Zealand","date":"Jun 16","time":"02:00","sk":6160200},{"id":"G2","home":"Belgium","away":"Iran","date":"Jun 21","time":"20:00","sk":6212000},{"id":"G3","home":"New Zealand","away":"Egypt","date":"Jun 22","time":"02:00","sk":6220200},{"id":"G4","home":"New Zealand","away":"Belgium","date":"Jun 27","time":"04:00","sk":6270400},{"id":"G5","home":"Egypt","away":"Iran","date":"Jun 27","time":"04:00","sk":6270400}]},"H":{"teams":["Spain","Cape Verde","Saudi Arabia","Uruguay"],"matches":[{"id":"H0","home":"Spain","away":"Cape Verde","date":"Jun 15","time":"17:00","sk":6151700},{"id":"H1","home":"Saudi Arabia","away":"Uruguay","date":"Jun 15","time":"23:00","sk":6152300},{"id":"H2","home":"Spain","away":"Saudi Arabia","date":"Jun 21","time":"17:00","sk":6211700},{"id":"H3","home":"Uruguay","away":"Cape Verde","date":"Jun 21","time":"23:00","sk":6212300},{"id":"H4","home":"Cape Verde","away":"Saudi Arabia","date":"Jun 27","time":"01:00","sk":6270100},{"id":"H5","home":"Uruguay","away":"Spain","date":"Jun 27","time":"01:00","sk":6270100}]},"I":{"teams":["France","Senegal","Iraq","Norway"],"matches":[{"id":"I0","home":"France","away":"Senegal","date":"Jun 16","time":"20:00","sk":6162000},{"id":"I1","home":"Iraq","away":"Norway","date":"Jun 16","time":"23:00","sk":6162300},{"id":"I2","home":"France","away":"Iraq","date":"Jun 22","time":"22:00","sk":6222200},{"id":"I3","home":"Norway","away":"Senegal","date":"Jun 23","time":"01:00","sk":6230100},{"id":"I4","home":"Norway","away":"France","date":"Jun 26","time":"20:00","sk":6262000},{"id":"I5","home":"Senegal","away":"Iraq","date":"Jun 26","time":"20:00","sk":6262000}]},"J":{"teams":["Argentina","Algeria","Austria","Jordan"],"matches":[{"id":"J0","home":"Argentina","away":"Algeria","date":"Jun 17","time":"02:00","sk":6170200},{"id":"J1","home":"Austria","away":"Jordan","date":"Jun 17","time":"05:00","sk":6170500},{"id":"J2","home":"Argentina","away":"Austria","date":"Jun 22","time":"18:00","sk":6221800},{"id":"J3","home":"Jordan","away":"Algeria","date":"Jun 23","time":"04:00","sk":6230400},{"id":"J4","home":"Algeria","away":"Austria","date":"Jun 28","time":"03:00","sk":6280300},{"id":"J5","home":"Jordan","away":"Argentina","date":"Jun 28","time":"03:00","sk":6280300}]},"K":{"teams":["Portugal","DR Congo","Uzbekistan","Colombia"],"matches":[{"id":"K0","home":"Portugal","away":"DR Congo","date":"Jun 17","time":"18:00","sk":6171800},{"id":"K1","home":"Uzbekistan","away":"Colombia","date":"Jun 18","time":"03:00","sk":6180300},{"id":"K2","home":"Portugal","away":"Uzbekistan","date":"Jun 23","time":"18:00","sk":6231800},{"id":"K3","home":"Colombia","away":"DR Congo","date":"Jun 24","time":"03:00","sk":6240300},{"id":"K4","home":"Colombia","away":"Portugal","date":"Jun 28","time":"00:30","sk":6280030},{"id":"K5","home":"DR Congo","away":"Uzbekistan","date":"Jun 28","time":"00:30","sk":6280030}]},"L":{"teams":["England","Croatia","Ghana","Panama"],"matches":[{"id":"L0","home":"England","away":"Croatia","date":"Jun 17","time":"21:00","sk":6172100},{"id":"L1","home":"Ghana","away":"Panama","date":"Jun 18","time":"00:00","sk":6180000},{"id":"L2","home":"England","away":"Ghana","date":"Jun 23","time":"21:00","sk":6232100},{"id":"L3","home":"Panama","away":"Croatia","date":"Jun 24","time":"00:00","sk":6240000},{"id":"L4","home":"Panama","away":"England","date":"Jun 27","time":"22:00","sk":6272200},{"id":"L5","home":"Croatia","away":"Ghana","date":"Jun 27","time":"22:00","sk":6272200}]}}};
 
 // 2026 format: 12 groups of 4. Top 2 from each group (24 teams) + 8 best 3rd-place teams qualify for R32.
 // Play-offs: 12 x 3rd-place teams → 4 play-off matches → 4 more R32 qualifiers
@@ -156,7 +181,7 @@ const KO_ROUNDS = [
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'wc2026_v3';
-let state = {scores:{}, koScores:{}, pens:{}};
+let state = {scores:{}, koScores:{}, pens:{}, preds:{}};
 let activeTab = 'fixtures';
 let activeGroup = 'ALL';
 
@@ -165,7 +190,8 @@ function loadState() {
     state.scores  = state.scores  || {};
     state.koScores= state.koScores|| {};
     state.pens    = state.pens    || {};
-  } catch(e) { state = {scores:{},koScores:{},pens:{}}; }
+    state.preds   = state.preds   || {};
+  } catch(e) { state = {scores:{},koScores:{},pens:{},preds:{}}; }
 }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
@@ -216,22 +242,22 @@ function countPlayed() {
 
 // R32: 16 matches with official seedings and dates
 const R32_BRACKET = [
-  {id:'R32_1',  home:'A2',   away:'B2',    date:'Jun 28'},
-  {id:'R32_2',  home:'E1',   away:'3rd_1E',date:'Jun 29'},
-  {id:'R32_3',  home:'F1',   away:'C2',    date:'Jun 30'},
-  {id:'R32_4',  home:'C1',   away:'F2',    date:'Jun 29'},
-  {id:'R32_5',  home:'I1',   away:'3rd_1I',date:'Jun 30'},
-  {id:'R32_6',  home:'E2',   away:'I2',    date:'Jun 30'},
-  {id:'R32_7',  home:'A1',   away:'3rd_1A',date:'Jul 1'},
-  {id:'R32_8',  home:'L1',   away:'3rd_1L',date:'Jul 1'},
-  {id:'R32_9',  home:'D1',   away:'3rd_1D',date:'Jul 2'},
-  {id:'R32_10', home:'G1',   away:'3rd_1G',date:'Jul 1'},
-  {id:'R32_11', home:'K2',   away:'L2',    date:'Jul 3'},
-  {id:'R32_12', home:'H1',   away:'J2',    date:'Jul 2'},
-  {id:'R32_13', home:'B1',   away:'3rd_1B',date:'Jul 3'},
-  {id:'R32_14', home:'J1',   away:'H2',    date:'Jul 3'},
-  {id:'R32_15', home:'K1',   away:'3rd_1K',date:'Jul 4'},
-  {id:'R32_16', home:'D2',   away:'G2',    date:'Jul 3'},
+  {id:'R32_1',  home:'A2',   away:'B2',    date:'Jun 28', time:'20:00'},
+  {id:'R32_2',  home:'E1',   away:'3rd_1E',date:'Jun 29', time:'21:30'},
+  {id:'R32_3',  home:'F1',   away:'C2',    date:'Jun 30', time:'02:00'},
+  {id:'R32_4',  home:'C1',   away:'F2',    date:'Jun 29', time:'18:00'},
+  {id:'R32_5',  home:'I1',   away:'3rd_1I',date:'Jun 30', time:'22:00'},
+  {id:'R32_6',  home:'E2',   away:'I2',    date:'Jun 30', time:'18:00'},
+  {id:'R32_7',  home:'A1',   away:'3rd_1A',date:'Jul 1',  time:'02:00'},
+  {id:'R32_8',  home:'L1',   away:'3rd_1L',date:'Jul 1',  time:'17:00'},
+  {id:'R32_9',  home:'D1',   away:'3rd_1D',date:'Jul 2',  time:'01:00'},
+  {id:'R32_10', home:'G1',   away:'3rd_1G',date:'Jul 1',  time:'21:00'},
+  {id:'R32_11', home:'K2',   away:'L2',    date:'Jul 3',  time:'00:00'},
+  {id:'R32_12', home:'H1',   away:'J2',    date:'Jul 2',  time:'20:00'},
+  {id:'R32_13', home:'B1',   away:'3rd_1B',date:'Jul 3',  time:'04:00'},
+  {id:'R32_14', home:'J1',   away:'H2',    date:'Jul 3',  time:'23:00'},
+  {id:'R32_15', home:'K1',   away:'3rd_1K',date:'Jul 4',  time:'02:30'},
+  {id:'R32_16', home:'D2',   away:'G2',    date:'Jul 3',  time:'19:00'},
 ];
 
 // R16 pairings (which R32 winners meet): from official bracket
@@ -244,32 +270,28 @@ const R32_BRACKET = [
 // R16_7: W(R32_14) vs W(R32_16) Tue Jul 7
 // R16_8: W(R32_13) vs W(R32_15) Tue Jul 7
 const R16_PAIRS = [
-  ['R32_2','R32_5','Jul 4'],
-  ['R32_1','R32_3','Jul 4'],
-  ['R32_4','R32_6','Jul 5'],
-  ['R32_7','R32_8','Jul 6'],
-  ['R32_11','R32_12','Jul 6'],
-  ['R32_9','R32_10','Jul 7'],
-  ['R32_14','R32_16','Jul 7'],
-  ['R32_13','R32_15','Jul 7'],
+  ['R32_2','R32_5','Jul 4','22:00'],
+  ['R32_1','R32_3','Jul 4','18:00'],
+  ['R32_4','R32_6','Jul 5','21:00'],
+  ['R32_7','R32_8','Jul 6','01:00'],
+  ['R32_11','R32_12','Jul 6','20:00'],
+  ['R32_9','R32_10','Jul 7','01:00'],
+  ['R32_14','R32_16','Jul 7','17:00'],
+  ['R32_13','R32_15','Jul 7','21:00'],
 ];
 
 // QF pairings
-// QF_1: W(R16_1) vs W(R16_2)  Thu Jul 9
-// QF_2: W(R16_5) vs W(R16_6)  Fri Jul 10
-// QF_3: W(R16_3) vs W(R16_4)  Sat Jul 11
-// QF_4: W(R16_7) vs W(R16_8)  Sun Jul 12
 const QF_PAIRS = [
-  ['R16_1','R16_2','Jul 9'],
-  ['R16_5','R16_6','Jul 10'],
-  ['R16_3','R16_4','Jul 11'],
-  ['R16_7','R16_8','Jul 12'],
+  ['R16_1','R16_2','Jul 9','21:00'],
+  ['R16_5','R16_6','Jul 10','20:00'],
+  ['R16_3','R16_4','Jul 11','22:00'],
+  ['R16_7','R16_8','Jul 12','02:00'],
 ];
 
 // SF: QF_1 winner vs QF_2 winner, QF_3 winner vs QF_4 winner
 const SF_PAIRS = [
-  ['QF_1','QF_2','Jul 15'],
-  ['QF_3','QF_4','Jul 16'],
+  ['QF_1','QF_2','Jul 14','20:00'],
+  ['QF_3','QF_4','Jul 15','20:00'],
 ];
 
 const ANNEX_C={"ABCDEFGH":["3H","3G","3B","3C","3A","3F","3D","3E"],"ABCDEFGI":["3C","3G","3B","3D","3A","3F","3E","3I"],"ABCDEFGJ":["3C","3G","3B","3D","3A","3F","3E","3J"],"ABCDEFGK":["3C","3G","3B","3D","3A","3F","3E","3K"],"ABCDEFGL":["3C","3G","3B","3D","3A","3F","3L","3E"],"ABCDEFHI":["3H","3E","3B","3C","3A","3F","3D","3I"],"ABCDEFHJ":["3H","3J","3B","3C","3A","3F","3D","3E"],"ABCDEFHK":["3H","3E","3B","3C","3A","3F","3D","3K"],"ABCDEFHL":["3H","3F","3B","3C","3A","3D","3L","3E"],"ABCDEFIJ":["3C","3J","3B","3D","3A","3F","3E","3I"],"ABCDEFIK":["3C","3E","3B","3D","3A","3F","3I","3K"],"ABCDEFIL":["3C","3E","3B","3D","3A","3F","3L","3I"],"ABCDEFJK":["3C","3J","3B","3D","3A","3F","3E","3K"],"ABCDEFJL":["3C","3J","3B","3D","3A","3F","3L","3E"],"ABCDEFKL":["3C","3E","3B","3D","3A","3F","3L","3K"],"ABCDEGHI":["3H","3G","3B","3C","3A","3D","3E","3I"],"ABCDEGHJ":["3H","3G","3B","3C","3A","3D","3E","3J"],"ABCDEGHK":["3H","3G","3B","3C","3A","3D","3E","3K"],"ABCDEGHL":["3H","3G","3B","3C","3A","3D","3L","3E"],"ABCDEGIJ":["3E","3G","3B","3C","3A","3D","3I","3J"],"ABCDEGIK":["3E","3G","3B","3C","3A","3D","3I","3K"],"ABCDEGIL":["3E","3G","3B","3C","3A","3D","3L","3I"],"ABCDEGJK":["3E","3G","3B","3C","3A","3D","3J","3K"],"ABCDEGJL":["3E","3G","3B","3C","3A","3D","3L","3J"],"ABCDEGKL":["3E","3G","3B","3C","3A","3D","3L","3K"],"ABCDEHIJ":["3H","3J","3B","3C","3A","3D","3E","3I"],"ABCDEHIK":["3H","3E","3B","3C","3A","3D","3I","3K"],"ABCDEHIL":["3H","3E","3B","3C","3A","3D","3L","3I"],"ABCDEHJK":["3H","3J","3B","3C","3A","3D","3E","3K"],"ABCDEHJL":["3H","3J","3B","3C","3A","3D","3L","3E"],"ABCDEHKL":["3H","3E","3B","3C","3A","3D","3L","3K"],"ABCDEIJK":["3E","3J","3B","3C","3A","3D","3I","3K"],"ABCDEIJL":["3E","3J","3B","3C","3A","3D","3L","3I"],"ABCDEIKL":["3E","3I","3B","3C","3A","3D","3L","3K"],"ABCDEJKL":["3E","3J","3B","3C","3A","3D","3L","3K"],"ABCDFGHI":["3H","3G","3B","3C","3A","3F","3D","3I"],"ABCDFGHJ":["3H","3G","3B","3C","3A","3F","3D","3J"],"ABCDFGHK":["3H","3G","3B","3C","3A","3F","3D","3K"],"ABCDFGHL":["3C","3G","3B","3D","3A","3F","3L","3H"],"ABCDFGIJ":["3C","3G","3B","3D","3A","3F","3I","3J"],"ABCDFGIK":["3C","3G","3B","3D","3A","3F","3I","3K"],"ABCDFGIL":["3C","3G","3B","3D","3A","3F","3L","3I"],"ABCDFGJK":["3C","3G","3B","3D","3A","3F","3J","3K"],"ABCDFGJL":["3C","3G","3B","3D","3A","3F","3L","3J"],"ABCDFGKL":["3C","3G","3B","3D","3A","3F","3L","3K"],"ABCDFHIJ":["3H","3J","3B","3C","3A","3F","3D","3I"],"ABCDFHIK":["3H","3F","3B","3C","3A","3D","3I","3K"],"ABCDFHIL":["3H","3F","3B","3C","3A","3D","3L","3I"],"ABCDFHJK":["3H","3J","3B","3C","3A","3F","3D","3K"],"ABCDFHJL":["3C","3J","3B","3D","3A","3F","3L","3H"],"ABCDFHKL":["3H","3F","3B","3C","3A","3D","3L","3K"],"ABCDFIJK":["3C","3J","3B","3D","3A","3F","3I","3K"],"ABCDFIJL":["3C","3J","3B","3D","3A","3F","3L","3I"],"ABCDFIKL":["3C","3I","3B","3D","3A","3F","3L","3K"],"ABCDFJKL":["3C","3J","3B","3D","3A","3F","3L","3K"],"ABCDGHIJ":["3H","3G","3B","3C","3A","3D","3I","3J"],"ABCDGHIK":["3H","3G","3B","3C","3A","3D","3I","3K"],"ABCDGHIL":["3H","3G","3B","3C","3A","3D","3L","3I"],"ABCDGHJK":["3H","3G","3B","3C","3A","3D","3J","3K"],"ABCDGHJL":["3H","3G","3B","3C","3A","3D","3L","3J"],"ABCDGHKL":["3H","3G","3B","3C","3A","3D","3L","3K"],"ABCDGIJK":["3C","3J","3B","3D","3A","3G","3I","3K"],"ABCDGIJL":["3C","3J","3B","3D","3A","3G","3L","3I"],"ABCDGIKL":["3I","3G","3B","3C","3A","3D","3L","3K"],"ABCDGJKL":["3C","3J","3B","3D","3A","3G","3L","3K"],"ABCDHIJK":["3H","3J","3B","3C","3A","3D","3I","3K"],"ABCDHIJL":["3H","3J","3B","3C","3A","3D","3L","3I"],"ABCDHIKL":["3H","3I","3B","3C","3A","3D","3L","3K"],"ABCDHJKL":["3H","3J","3B","3C","3A","3D","3L","3K"],"ABCDIJKL":["3I","3J","3B","3C","3A","3D","3L","3K"],"ABCEFGHI":["3H","3G","3B","3C","3A","3F","3E","3I"],"ABCEFGHJ":["3H","3G","3B","3C","3A","3F","3E","3J"],"ABCEFGHK":["3H","3G","3B","3C","3A","3F","3E","3K"],"ABCEFGHL":["3H","3G","3B","3C","3A","3F","3L","3E"],"ABCEFGIJ":["3E","3G","3B","3C","3A","3F","3I","3J"],"ABCEFGIK":["3E","3G","3B","3C","3A","3F","3I","3K"],"ABCEFGIL":["3E","3G","3B","3C","3A","3F","3L","3I"],"ABCEFGJK":["3E","3G","3B","3C","3A","3F","3J","3K"],"ABCEFGJL":["3E","3G","3B","3C","3A","3F","3L","3J"],"ABCEFGKL":["3E","3G","3B","3C","3A","3F","3L","3K"],"ABCEFHIJ":["3H","3J","3B","3C","3A","3F","3E","3I"],"ABCEFHIK":["3H","3E","3B","3C","3A","3F","3I","3K"],"ABCEFHIL":["3H","3E","3B","3C","3A","3F","3L","3I"],"ABCEFHJK":["3H","3J","3B","3C","3A","3F","3E","3K"],"ABCEFHJL":["3H","3J","3B","3C","3A","3F","3L","3E"],"ABCEFHKL":["3H","3E","3B","3C","3A","3F","3L","3K"],"ABCEFIJK":["3E","3J","3B","3C","3A","3F","3I","3K"],"ABCEFIJL":["3E","3J","3B","3C","3A","3F","3L","3I"],"ABCEFIKL":["3E","3I","3B","3C","3A","3F","3L","3K"],"ABCEFJKL":["3E","3J","3B","3C","3A","3F","3L","3K"],"ABCEGHIJ":["3H","3J","3B","3C","3A","3G","3E","3I"],"ABCEGHIK":["3E","3G","3B","3C","3A","3H","3I","3K"],"ABCEGHIL":["3E","3G","3B","3C","3A","3H","3L","3I"],"ABCEGHJK":["3H","3J","3B","3C","3A","3G","3E","3K"],"ABCEGHJL":["3H","3J","3B","3C","3A","3G","3L","3E"],"ABCEGHKL":["3E","3G","3B","3C","3A","3H","3L","3K"],"ABCEGIJK":["3E","3J","3B","3C","3A","3G","3I","3K"],"ABCEGIJL":["3E","3J","3B","3C","3A","3G","3L","3I"],"ABCEGIKL":["3E","3G","3B","3A","3I","3C","3L","3K"],"ABCEGJKL":["3E","3J","3B","3C","3A","3G","3L","3K"],"ABCEHIJK":["3E","3J","3B","3C","3A","3H","3I","3K"],"ABCEHIJL":["3E","3J","3B","3C","3A","3H","3L","3I"],"ABCEHIKL":["3E","3I","3B","3C","3A","3H","3L","3K"],"ABCEHJKL":["3E","3J","3B","3C","3A","3H","3L","3K"],"ABCEIJKL":["3E","3J","3B","3A","3I","3C","3L","3K"],"ABCFGHIJ":["3H","3G","3B","3C","3A","3F","3I","3J"],"ABCFGHIK":["3H","3G","3B","3C","3A","3F","3I","3K"],"ABCFGHIL":["3H","3G","3B","3C","3A","3F","3L","3I"],"ABCFGHJK":["3H","3G","3B","3C","3A","3F","3J","3K"],"ABCFGHJL":["3H","3G","3B","3C","3A","3F","3L","3J"],"ABCFGHKL":["3H","3G","3B","3C","3A","3F","3L","3K"],"ABCFGIJK":["3C","3J","3B","3F","3A","3G","3I","3K"],"ABCFGIJL":["3C","3J","3B","3F","3A","3G","3L","3I"],"ABCFGIKL":["3I","3G","3B","3C","3A","3F","3L","3K"],"ABCFGJKL":["3C","3J","3B","3F","3A","3G","3L","3K"],"ABCFHIJK":["3H","3J","3B","3C","3A","3F","3I","3K"],"ABCFHIJL":["3H","3J","3B","3C","3A","3F","3L","3I"],"ABCFHIKL":["3H","3I","3B","3C","3A","3F","3L","3K"],"ABCFHJKL":["3H","3J","3B","3C","3A","3F","3L","3K"],"ABCFIJKL":["3I","3J","3B","3C","3A","3F","3L","3K"],"ABCGHIJK":["3H","3J","3B","3C","3A","3G","3I","3K"],"ABCGHIJL":["3H","3J","3B","3C","3A","3G","3L","3I"],"ABCGHIKL":["3I","3G","3B","3C","3A","3H","3L","3K"],"ABCGHJKL":["3H","3J","3B","3C","3A","3G","3L","3K"],"ABCGIJKL":["3I","3J","3B","3C","3A","3G","3L","3K"],"ABCHIJKL":["3I","3J","3B","3C","3A","3H","3L","3K"],"ABDEFGHI":["3H","3G","3B","3D","3A","3F","3E","3I"],"ABDEFGHJ":["3H","3G","3B","3D","3A","3F","3E","3J"],"ABDEFGHK":["3H","3G","3B","3D","3A","3F","3E","3K"],"ABDEFGHL":["3H","3G","3B","3D","3A","3F","3L","3E"],"ABDEFGIJ":["3E","3G","3B","3D","3A","3F","3I","3J"],"ABDEFGIK":["3E","3G","3B","3D","3A","3F","3I","3K"],"ABDEFGIL":["3E","3G","3B","3D","3A","3F","3L","3I"],"ABDEFGJK":["3E","3G","3B","3D","3A","3F","3J","3K"],"ABDEFGJL":["3E","3G","3B","3D","3A","3F","3L","3J"],"ABDEFGKL":["3E","3G","3B","3D","3A","3F","3L","3K"],"ABDEFHIJ":["3H","3J","3B","3D","3A","3F","3E","3I"],"ABDEFHIK":["3H","3E","3B","3D","3A","3F","3I","3K"],"ABDEFHIL":["3H","3E","3B","3D","3A","3F","3L","3I"],"ABDEFHJK":["3H","3J","3B","3D","3A","3F","3E","3K"],"ABDEFHJL":["3H","3J","3B","3D","3A","3F","3L","3E"],"ABDEFHKL":["3H","3E","3B","3D","3A","3F","3L","3K"],"ABDEFIJK":["3E","3J","3B","3D","3A","3F","3I","3K"],"ABDEFIJL":["3E","3J","3B","3D","3A","3F","3L","3I"],"ABDEFIKL":["3E","3I","3B","3D","3A","3F","3L","3K"],"ABDEFJKL":["3E","3J","3B","3D","3A","3F","3L","3K"],"ABDEGHIJ":["3H","3J","3B","3D","3A","3G","3E","3I"],"ABDEGHIK":["3E","3G","3B","3D","3A","3H","3I","3K"],"ABDEGHIL":["3E","3G","3B","3D","3A","3H","3L","3I"],"ABDEGHJK":["3H","3J","3B","3D","3A","3G","3E","3K"],"ABDEGHJL":["3H","3J","3B","3D","3A","3G","3L","3E"],"ABDEGHKL":["3E","3G","3B","3D","3A","3H","3L","3K"],"ABDEGIJK":["3E","3J","3B","3D","3A","3G","3I","3K"],"ABDEGIJL":["3E","3J","3B","3D","3A","3G","3L","3I"],"ABDEGIKL":["3E","3G","3B","3A","3I","3D","3L","3K"],"ABDEGJKL":["3E","3J","3B","3D","3A","3G","3L","3K"],"ABDEHIJK":["3E","3J","3B","3D","3A","3H","3I","3K"],"ABDEHIJL":["3E","3J","3B","3D","3A","3H","3L","3I"],"ABDEHIKL":["3E","3I","3B","3D","3A","3H","3L","3K"],"ABDEHJKL":["3E","3J","3B","3D","3A","3H","3L","3K"],"ABDEIJKL":["3E","3J","3B","3A","3I","3D","3L","3K"],"ABDFGHIJ":["3H","3G","3B","3D","3A","3F","3I","3J"],"ABDFGHIK":["3H","3G","3B","3D","3A","3F","3I","3K"],"ABDFGHIL":["3H","3G","3B","3D","3A","3F","3L","3I"],"ABDFGHJK":["3H","3G","3B","3D","3A","3F","3J","3K"],"ABDFGHJL":["3H","3G","3B","3D","3A","3F","3L","3J"],"ABDFGHKL":["3H","3G","3B","3D","3A","3F","3L","3K"],"ABDFGIJK":["3F","3J","3B","3D","3A","3G","3I","3K"],"ABDFGIJL":["3F","3J","3B","3D","3A","3G","3L","3I"],"ABDFGIKL":["3I","3G","3B","3D","3A","3F","3L","3K"],"ABDFGJKL":["3F","3J","3B","3D","3A","3G","3L","3K"],"ABDFHIJK":["3H","3J","3B","3D","3A","3F","3I","3K"],"ABDFHIJL":["3H","3J","3B","3D","3A","3F","3L","3I"],"ABDFHIKL":["3H","3I","3B","3D","3A","3F","3L","3K"],"ABDFHJKL":["3H","3J","3B","3D","3A","3F","3L","3K"],"ABDFIJKL":["3I","3J","3B","3D","3A","3F","3L","3K"],"ABDGHIJK":["3H","3J","3B","3D","3A","3G","3I","3K"],"ABDGHIJL":["3H","3J","3B","3D","3A","3G","3L","3I"],"ABDGHIKL":["3I","3G","3B","3D","3A","3H","3L","3K"],"ABDGHJKL":["3H","3J","3B","3D","3A","3G","3L","3K"],"ABDGIJKL":["3I","3J","3B","3D","3A","3G","3L","3K"],"ABDHIJKL":["3I","3J","3B","3D","3A","3H","3L","3K"],"ABEFGHIJ":["3H","3J","3B","3F","3A","3G","3E","3I"],"ABEFGHIK":["3E","3G","3B","3F","3A","3H","3I","3K"],"ABEFGHIL":["3E","3G","3B","3F","3A","3H","3L","3I"],"ABEFGHJK":["3H","3J","3B","3F","3A","3G","3E","3K"],"ABEFGHJL":["3H","3J","3B","3F","3A","3G","3L","3E"],"ABEFGHKL":["3E","3G","3B","3F","3A","3H","3L","3K"],"ABEFGIJK":["3E","3J","3B","3F","3A","3G","3I","3K"],"ABEFGIJL":["3E","3J","3B","3F","3A","3G","3L","3I"],"ABEFGIKL":["3E","3G","3B","3A","3I","3F","3L","3K"],"ABEFGJKL":["3E","3J","3B","3F","3A","3G","3L","3K"],"ABEFHIJK":["3E","3J","3B","3F","3A","3H","3I","3K"],"ABEFHIJL":["3E","3J","3B","3F","3A","3H","3L","3I"],"ABEFHIKL":["3E","3I","3B","3F","3A","3H","3L","3K"],"ABEFHJKL":["3E","3J","3B","3F","3A","3H","3L","3K"],"ABEFIJKL":["3E","3J","3B","3A","3I","3F","3L","3K"],"ABEGHIJK":["3E","3J","3B","3A","3H","3G","3I","3K"],"ABEGHIJL":["3E","3J","3B","3A","3H","3G","3L","3I"],"ABEGHIKL":["3E","3G","3B","3A","3I","3H","3L","3K"],"ABEGHJKL":["3E","3J","3B","3A","3H","3G","3L","3K"],"ABEGIJKL":["3E","3J","3B","3A","3I","3G","3L","3K"],"ABEHIJKL":["3E","3J","3B","3A","3I","3H","3L","3K"],"ABFGHIJK":["3H","3J","3B","3F","3A","3G","3I","3K"],"ABFGHIJL":["3H","3J","3B","3F","3A","3G","3L","3I"],"ABFGHIKL":["3H","3G","3B","3A","3I","3F","3L","3K"],"ABFGHJKL":["3H","3J","3B","3F","3A","3G","3L","3K"],"ABFGIJKL":["3I","3J","3B","3F","3A","3G","3L","3K"],"ABFHIJKL":["3H","3J","3B","3A","3I","3F","3L","3K"],"ABGHIJKL":["3H","3J","3B","3A","3I","3G","3L","3K"],"ACDEFGHI":["3H","3G","3E","3C","3A","3F","3D","3I"],"ACDEFGHJ":["3H","3G","3J","3C","3A","3F","3D","3E"],"ACDEFGHK":["3H","3G","3E","3C","3A","3F","3D","3K"],"ACDEFGHL":["3H","3G","3F","3C","3A","3D","3L","3E"],"ACDEFGIJ":["3C","3G","3J","3D","3A","3F","3E","3I"],"ACDEFGIK":["3C","3G","3E","3D","3A","3F","3I","3K"],"ACDEFGIL":["3C","3G","3E","3D","3A","3F","3L","3I"],"ACDEFGJK":["3C","3G","3J","3D","3A","3F","3E","3K"],"ACDEFGJL":["3C","3G","3J","3D","3A","3F","3L","3E"],"ACDEFGKL":["3C","3G","3E","3D","3A","3F","3L","3K"],"ACDEFHIJ":["3H","3J","3E","3C","3A","3F","3D","3I"],"ACDEFHIK":["3H","3E","3F","3C","3A","3D","3I","3K"],"ACDEFHIL":["3H","3E","3F","3C","3A","3D","3L","3I"],"ACDEFHJK":["3H","3J","3E","3C","3A","3F","3D","3K"],"ACDEFHJL":["3H","3J","3F","3C","3A","3D","3L","3E"],"ACDEFHKL":["3H","3E","3F","3C","3A","3D","3L","3K"],"ACDEFIJK":["3C","3J","3E","3D","3A","3F","3I","3K"],"ACDEFIJL":["3C","3J","3E","3D","3A","3F","3L","3I"],"ACDEFIKL":["3C","3E","3I","3D","3A","3F","3L","3K"],"ACDEFJKL":["3C","3J","3E","3D","3A","3F","3L","3K"],"ACDEGHIJ":["3H","3G","3J","3C","3A","3D","3E","3I"],"ACDEGHIK":["3H","3G","3E","3C","3A","3D","3I","3K"],"ACDEGHIL":["3H","3G","3E","3C","3A","3D","3L","3I"],"ACDEGHJK":["3H","3G","3J","3C","3A","3D","3E","3K"],"ACDEGHJL":["3H","3G","3J","3C","3A","3D","3L","3E"],"ACDEGHKL":["3H","3G","3E","3C","3A","3D","3L","3K"],"ACDEGIJK":["3E","3G","3J","3C","3A","3D","3I","3K"],"ACDEGIJL":["3E","3G","3J","3C","3A","3D","3L","3I"],"ACDEGIKL":["3E","3G","3I","3C","3A","3D","3L","3K"],"ACDEGJKL":["3E","3G","3J","3C","3A","3D","3L","3K"],"ACDEHIJK":["3H","3J","3E","3C","3A","3D","3I","3K"],"ACDEHIJL":["3H","3J","3E","3C","3A","3D","3L","3I"],"ACDEHIKL":["3H","3E","3I","3C","3A","3D","3L","3K"],"ACDEHJKL":["3H","3J","3E","3C","3A","3D","3L","3K"],"ACDEIJKL":["3E","3J","3I","3C","3A","3D","3L","3K"],"ACDFGHIJ":["3H","3G","3J","3C","3A","3F","3D","3I"],"ACDFGHIK":["3H","3G","3F","3C","3A","3D","3I","3K"],"ACDFGHIL":["3H","3G","3F","3C","3A","3D","3L","3I"],"ACDFGHJK":["3H","3G","3J","3C","3A","3F","3D","3K"],"ACDFGHJL":["3C","3G","3J","3D","3A","3F","3L","3H"],"ACDFGHKL":["3H","3G","3F","3C","3A","3D","3L","3K"],"ACDFGIJK":["3C","3G","3J","3D","3A","3F","3I","3K"],"ACDFGIJL":["3C","3G","3J","3D","3A","3F","3L","3I"],"ACDFGIKL":["3C","3G","3I","3D","3A","3F","3L","3K"],"ACDFGJKL":["3C","3G","3J","3D","3A","3F","3L","3K"],"ACDFHIJK":["3H","3J","3F","3C","3A","3D","3I","3K"],"ACDFHIJL":["3H","3J","3F","3C","3A","3D","3L","3I"],"ACDFHIKL":["3H","3F","3I","3C","3A","3D","3L","3K"],"ACDFHJKL":["3H","3J","3F","3C","3A","3D","3L","3K"],"ACDFIJKL":["3C","3J","3I","3D","3A","3F","3L","3K"],"ACDGHIJK":["3H","3G","3J","3C","3A","3D","3I","3K"],"ACDGHIJL":["3H","3G","3J","3C","3A","3D","3L","3I"],"ACDGHIKL":["3H","3G","3I","3C","3A","3D","3L","3K"],"ACDGHJKL":["3H","3G","3J","3C","3A","3D","3L","3K"],"ACDGIJKL":["3I","3G","3J","3C","3A","3D","3L","3K"],"ACDHIJKL":["3H","3J","3I","3C","3A","3D","3L","3K"],"ACEFGHIJ":["3H","3G","3J","3C","3A","3F","3E","3I"],"ACEFGHIK":["3H","3G","3E","3C","3A","3F","3I","3K"],"ACEFGHIL":["3H","3G","3E","3C","3A","3F","3L","3I"],"ACEFGHJK":["3H","3G","3J","3C","3A","3F","3E","3K"],"ACEFGHJL":["3H","3G","3J","3C","3A","3F","3L","3E"],"ACEFGHKL":["3H","3G","3E","3C","3A","3F","3L","3K"],"ACEFGIJK":["3E","3G","3J","3C","3A","3F","3I","3K"],"ACEFGIJL":["3E","3G","3J","3C","3A","3F","3L","3I"],"ACEFGIKL":["3E","3G","3I","3C","3A","3F","3L","3K"],"ACEFGJKL":["3E","3G","3J","3C","3A","3F","3L","3K"],"ACEFHIJK":["3H","3J","3E","3C","3A","3F","3I","3K"],"ACEFHIJL":["3H","3J","3E","3C","3A","3F","3L","3I"],"ACEFHIKL":["3H","3E","3I","3C","3A","3F","3L","3K"],"ACEFHJKL":["3H","3J","3E","3C","3A","3F","3L","3K"],"ACEFIJKL":["3E","3J","3I","3C","3A","3F","3L","3K"],"ACEGHIJK":["3E","3G","3J","3C","3A","3H","3I","3K"],"ACEGHIJL":["3E","3G","3J","3C","3A","3H","3L","3I"],"ACEGHIKL":["3E","3G","3I","3C","3A","3H","3L","3K"],"ACEGHJKL":["3E","3G","3J","3C","3A","3H","3L","3K"],"ACEGIJKL":["3E","3J","3I","3C","3A","3G","3L","3K"],"ACEHIJKL":["3E","3J","3I","3C","3A","3H","3L","3K"],"ACFGHIJK":["3H","3G","3J","3C","3A","3F","3I","3K"],"ACFGHIJL":["3H","3G","3J","3C","3A","3F","3L","3I"],"ACFGHIKL":["3H","3G","3I","3C","3A","3F","3L","3K"],"ACFGHJKL":["3H","3G","3J","3C","3A","3F","3L","3K"],"ACFGIJKL":["3I","3G","3J","3C","3A","3F","3L","3K"],"ACFHIJKL":["3H","3J","3I","3C","3A","3F","3L","3K"],"ACGHIJKL":["3H","3J","3I","3C","3A","3G","3L","3K"],"ADEFGHIJ":["3H","3G","3J","3D","3A","3F","3E","3I"],"ADEFGHIK":["3H","3G","3E","3D","3A","3F","3I","3K"],"ADEFGHIL":["3H","3G","3E","3D","3A","3F","3L","3I"],"ADEFGHJK":["3H","3G","3J","3D","3A","3F","3E","3K"],"ADEFGHJL":["3H","3G","3J","3D","3A","3F","3L","3E"],"ADEFGHKL":["3H","3G","3E","3D","3A","3F","3L","3K"],"ADEFGIJK":["3E","3G","3J","3D","3A","3F","3I","3K"],"ADEFGIJL":["3E","3G","3J","3D","3A","3F","3L","3I"],"ADEFGIKL":["3E","3G","3I","3D","3A","3F","3L","3K"],"ADEFGJKL":["3E","3G","3J","3D","3A","3F","3L","3K"],"ADEFHIJK":["3H","3J","3E","3D","3A","3F","3I","3K"],"ADEFHIJL":["3H","3J","3E","3D","3A","3F","3L","3I"],"ADEFHIKL":["3H","3E","3I","3D","3A","3F","3L","3K"],"ADEFHJKL":["3H","3J","3E","3D","3A","3F","3L","3K"],"ADEFIJKL":["3E","3J","3I","3D","3A","3F","3L","3K"],"ADEGHIJK":["3E","3G","3J","3D","3A","3H","3I","3K"],"ADEGHIJL":["3E","3G","3J","3D","3A","3H","3L","3I"],"ADEGHIKL":["3E","3G","3I","3D","3A","3H","3L","3K"],"ADEGHJKL":["3E","3G","3J","3D","3A","3H","3L","3K"],"ADEGIJKL":["3E","3J","3I","3D","3A","3G","3L","3K"],"ADEHIJKL":["3E","3J","3I","3D","3A","3H","3L","3K"],"ADFGHIJK":["3H","3G","3J","3D","3A","3F","3I","3K"],"ADFGHIJL":["3H","3G","3J","3D","3A","3F","3L","3I"],"ADFGHIKL":["3H","3G","3I","3D","3A","3F","3L","3K"],"ADFGHJKL":["3H","3G","3J","3D","3A","3F","3L","3K"],"ADFGIJKL":["3I","3G","3J","3D","3A","3F","3L","3K"],"ADFHIJKL":["3H","3J","3I","3D","3A","3F","3L","3K"],"ADGHIJKL":["3H","3J","3I","3D","3A","3G","3L","3K"],"AEFGHIJK":["3E","3G","3J","3F","3A","3H","3I","3K"],"AEFGHIJL":["3E","3G","3J","3F","3A","3H","3L","3I"],"AEFGHIKL":["3E","3G","3I","3F","3A","3H","3L","3K"],"AEFGHJKL":["3E","3G","3J","3F","3A","3H","3L","3K"],"AEFGIJKL":["3E","3J","3I","3F","3A","3G","3L","3K"],"AEFHIJKL":["3E","3J","3I","3F","3A","3H","3L","3K"],"AEGHIJKL":["3E","3J","3I","3A","3H","3G","3L","3K"],"AFGHIJKL":["3H","3J","3I","3F","3A","3G","3L","3K"],"BCDEFGHI":["3C","3G","3B","3D","3H","3F","3E","3I"],"BCDEFGHJ":["3H","3G","3B","3C","3J","3F","3D","3E"],"BCDEFGHK":["3C","3G","3B","3D","3H","3F","3E","3K"],"BCDEFGHL":["3C","3G","3B","3D","3H","3F","3L","3E"],"BCDEFGIJ":["3C","3G","3B","3D","3J","3F","3E","3I"],"BCDEFGIK":["3C","3G","3B","3D","3E","3F","3I","3K"],"BCDEFGIL":["3C","3G","3B","3D","3E","3F","3L","3I"],"BCDEFGJK":["3C","3G","3B","3D","3J","3F","3E","3K"],"BCDEFGJL":["3C","3G","3B","3D","3J","3F","3L","3E"],"BCDEFGKL":["3C","3G","3B","3D","3E","3F","3L","3K"],"BCDEFHIJ":["3C","3J","3B","3D","3H","3F","3E","3I"],"BCDEFHIK":["3C","3E","3B","3D","3H","3F","3I","3K"],"BCDEFHIL":["3C","3E","3B","3D","3H","3F","3L","3I"],"BCDEFHJK":["3C","3J","3B","3D","3H","3F","3E","3K"],"BCDEFHJL":["3C","3J","3B","3D","3H","3F","3L","3E"],"BCDEFHKL":["3C","3E","3B","3D","3H","3F","3L","3K"],"BCDEFIJK":["3C","3J","3B","3D","3E","3F","3I","3K"],"BCDEFIJL":["3C","3J","3B","3D","3E","3F","3L","3I"],"BCDEFIKL":["3C","3E","3B","3D","3I","3F","3L","3K"],"BCDEFJKL":["3C","3J","3B","3D","3E","3F","3L","3K"],"BCDEGHIJ":["3H","3G","3B","3C","3J","3D","3E","3I"],"BCDEGHIK":["3E","3G","3B","3C","3H","3D","3I","3K"],"BCDEGHIL":["3E","3G","3B","3C","3H","3D","3L","3I"],"BCDEGHJK":["3H","3G","3B","3C","3J","3D","3E","3K"],"BCDEGHJL":["3H","3G","3B","3C","3J","3D","3L","3E"],"BCDEGHKL":["3E","3G","3B","3C","3H","3D","3L","3K"],"BCDEGIJK":["3E","3G","3B","3C","3J","3D","3I","3K"],"BCDEGIJL":["3E","3G","3B","3C","3J","3D","3L","3I"],"BCDEGIKL":["3E","3G","3B","3C","3I","3D","3L","3K"],"BCDEGJKL":["3E","3G","3B","3C","3J","3D","3L","3K"],"BCDEHIJK":["3E","3J","3B","3C","3H","3D","3I","3K"],"BCDEHIJL":["3E","3J","3B","3C","3H","3D","3L","3I"],"BCDEHIKL":["3E","3I","3B","3C","3H","3D","3L","3K"],"BCDEHJKL":["3E","3J","3B","3C","3H","3D","3L","3K"],"BCDEIJKL":["3E","3J","3B","3C","3I","3D","3L","3K"],"BCDFGHIJ":["3H","3G","3B","3C","3J","3F","3D","3I"],"BCDFGHIK":["3C","3G","3B","3D","3H","3F","3I","3K"],"BCDFGHIL":["3C","3G","3B","3D","3H","3F","3L","3I"],"BCDFGHJK":["3H","3G","3B","3C","3J","3F","3D","3K"],"BCDFGHJL":["3C","3G","3B","3D","3H","3F","3L","3J"],"BCDFGHKL":["3C","3G","3B","3D","3H","3F","3L","3K"],"BCDFGIJK":["3C","3G","3B","3D","3J","3F","3I","3K"],"BCDFGIJL":["3C","3G","3B","3D","3J","3F","3L","3I"],"BCDFGIKL":["3C","3G","3B","3D","3I","3F","3L","3K"],"BCDFGJKL":["3C","3G","3B","3D","3J","3F","3L","3K"],"BCDFHIJK":["3C","3J","3B","3D","3H","3F","3I","3K"],"BCDFHIJL":["3C","3J","3B","3D","3H","3F","3L","3I"],"BCDFHIKL":["3C","3I","3B","3D","3H","3F","3L","3K"],"BCDFHJKL":["3C","3J","3B","3D","3H","3F","3L","3K"],"BCDFIJKL":["3C","3J","3B","3D","3I","3F","3L","3K"],"BCDGHIJK":["3H","3G","3B","3C","3J","3D","3I","3K"],"BCDGHIJL":["3H","3G","3B","3C","3J","3D","3L","3I"],"BCDGHIKL":["3H","3G","3B","3C","3I","3D","3L","3K"],"BCDGHJKL":["3H","3G","3B","3C","3J","3D","3L","3K"],"BCDGIJKL":["3I","3G","3B","3C","3J","3D","3L","3K"],"BCDHIJKL":["3H","3J","3B","3C","3I","3D","3L","3K"],"BCEFGHIJ":["3H","3G","3B","3C","3J","3F","3E","3I"],"BCEFGHIK":["3E","3G","3B","3C","3H","3F","3I","3K"],"BCEFGHIL":["3E","3G","3B","3C","3H","3F","3L","3I"],"BCEFGHJK":["3H","3G","3B","3C","3J","3F","3E","3K"],"BCEFGHJL":["3H","3G","3B","3C","3J","3F","3L","3E"],"BCEFGHKL":["3E","3G","3B","3C","3H","3F","3L","3K"],"BCEFGIJK":["3E","3G","3B","3C","3J","3F","3I","3K"],"BCEFGIJL":["3E","3G","3B","3C","3J","3F","3L","3I"],"BCEFGIKL":["3E","3G","3B","3C","3I","3F","3L","3K"],"BCEFGJKL":["3E","3G","3B","3C","3J","3F","3L","3K"],"BCEFHIJK":["3E","3J","3B","3C","3H","3F","3I","3K"],"BCEFHIJL":["3E","3J","3B","3C","3H","3F","3L","3I"],"BCEFHIKL":["3E","3I","3B","3C","3H","3F","3L","3K"],"BCEFHJKL":["3E","3J","3B","3C","3H","3F","3L","3K"],"BCEFIJKL":["3E","3J","3B","3C","3I","3F","3L","3K"],"BCEGHIJK":["3E","3J","3B","3C","3H","3G","3I","3K"],"BCEGHIJL":["3E","3J","3B","3C","3H","3G","3L","3I"],"BCEGHIKL":["3E","3G","3B","3C","3I","3H","3L","3K"],"BCEGHJKL":["3E","3J","3B","3C","3H","3G","3L","3K"],"BCEGIJKL":["3E","3J","3B","3C","3I","3G","3L","3K"],"BCEHIJKL":["3E","3J","3B","3C","3I","3H","3L","3K"],"BCFGHIJK":["3H","3G","3B","3C","3J","3F","3I","3K"],"BCFGHIJL":["3H","3G","3B","3C","3J","3F","3L","3I"],"BCFGHIKL":["3H","3G","3B","3C","3I","3F","3L","3K"],"BCFGHJKL":["3H","3G","3B","3C","3J","3F","3L","3K"],"BCFGIJKL":["3I","3G","3B","3C","3J","3F","3L","3K"],"BCFHIJKL":["3H","3J","3B","3C","3I","3F","3L","3K"],"BCGHIJKL":["3H","3J","3B","3C","3I","3G","3L","3K"],"BDEFGHIJ":["3H","3G","3B","3D","3J","3F","3E","3I"],"BDEFGHIK":["3E","3G","3B","3D","3H","3F","3I","3K"],"BDEFGHIL":["3E","3G","3B","3D","3H","3F","3L","3I"],"BDEFGHJK":["3H","3G","3B","3D","3J","3F","3E","3K"],"BDEFGHJL":["3H","3G","3B","3D","3J","3F","3L","3E"],"BDEFGHKL":["3E","3G","3B","3D","3H","3F","3L","3K"],"BDEFGIJK":["3E","3G","3B","3D","3J","3F","3I","3K"],"BDEFGIJL":["3E","3G","3B","3D","3J","3F","3L","3I"],"BDEFGIKL":["3E","3G","3B","3D","3I","3F","3L","3K"],"BDEFGJKL":["3E","3G","3B","3D","3J","3F","3L","3K"],"BDEFHIJK":["3E","3J","3B","3D","3H","3F","3I","3K"],"BDEFHIJL":["3E","3J","3B","3D","3H","3F","3L","3I"],"BDEFHIKL":["3E","3I","3B","3D","3H","3F","3L","3K"],"BDEFHJKL":["3E","3J","3B","3D","3H","3F","3L","3K"],"BDEFIJKL":["3E","3J","3B","3D","3I","3F","3L","3K"],"BDEGHIJK":["3E","3J","3B","3D","3H","3G","3I","3K"],"BDEGHIJL":["3E","3J","3B","3D","3H","3G","3L","3I"],"BDEGHIKL":["3E","3G","3B","3D","3I","3H","3L","3K"],"BDEGHJKL":["3E","3J","3B","3D","3H","3G","3L","3K"],"BDEGIJKL":["3E","3J","3B","3D","3I","3G","3L","3K"],"BDEHIJKL":["3E","3J","3B","3D","3I","3H","3L","3K"],"BDFGHIJK":["3H","3G","3B","3D","3J","3F","3I","3K"],"BDFGHIJL":["3H","3G","3B","3D","3J","3F","3L","3I"],"BDFGHIKL":["3H","3G","3B","3D","3I","3F","3L","3K"],"BDFGHJKL":["3H","3G","3B","3D","3J","3F","3L","3K"],"BDFGIJKL":["3I","3G","3B","3D","3J","3F","3L","3K"],"BDFHIJKL":["3H","3J","3B","3D","3I","3F","3L","3K"],"BDGHIJKL":["3H","3J","3B","3D","3I","3G","3L","3K"],"BEFGHIJK":["3E","3J","3B","3F","3H","3G","3I","3K"],"BEFGHIJL":["3E","3J","3B","3F","3H","3G","3L","3I"],"BEFGHIKL":["3E","3G","3B","3F","3I","3H","3L","3K"],"BEFGHJKL":["3E","3J","3B","3F","3H","3G","3L","3K"],"BEFGIJKL":["3E","3J","3B","3F","3I","3G","3L","3K"],"BEFHIJKL":["3E","3J","3B","3F","3I","3H","3L","3K"],"BEGHIJKL":["3E","3J","3I","3B","3H","3G","3L","3K"],"BFGHIJKL":["3H","3J","3B","3F","3I","3G","3L","3K"],"CDEFGHIJ":["3C","3G","3J","3D","3H","3F","3E","3I"],"CDEFGHIK":["3C","3G","3E","3D","3H","3F","3I","3K"],"CDEFGHIL":["3C","3G","3E","3D","3H","3F","3L","3I"],"CDEFGHJK":["3C","3G","3J","3D","3H","3F","3E","3K"],"CDEFGHJL":["3C","3G","3J","3D","3H","3F","3L","3E"],"CDEFGHKL":["3C","3G","3E","3D","3H","3F","3L","3K"],"CDEFGIJK":["3C","3G","3E","3D","3J","3F","3I","3K"],"CDEFGIJL":["3C","3G","3E","3D","3J","3F","3L","3I"],"CDEFGIKL":["3C","3G","3E","3D","3I","3F","3L","3K"],"CDEFGJKL":["3C","3G","3E","3D","3J","3F","3L","3K"],"CDEFHIJK":["3C","3J","3E","3D","3H","3F","3I","3K"],"CDEFHIJL":["3C","3J","3E","3D","3H","3F","3L","3I"],"CDEFHIKL":["3C","3E","3I","3D","3H","3F","3L","3K"],"CDEFHJKL":["3C","3J","3E","3D","3H","3F","3L","3K"],"CDEFIJKL":["3C","3J","3E","3D","3I","3F","3L","3K"],"CDEGHIJK":["3E","3G","3J","3C","3H","3D","3I","3K"],"CDEGHIJL":["3E","3G","3J","3C","3H","3D","3L","3I"],"CDEGHIKL":["3E","3G","3I","3C","3H","3D","3L","3K"],"CDEGHJKL":["3E","3G","3J","3C","3H","3D","3L","3K"],"CDEGIJKL":["3E","3G","3I","3C","3J","3D","3L","3K"],"CDEHIJKL":["3E","3J","3I","3C","3H","3D","3L","3K"],"CDFGHIJK":["3C","3G","3J","3D","3H","3F","3I","3K"],"CDFGHIJL":["3C","3G","3J","3D","3H","3F","3L","3I"],"CDFGHIKL":["3C","3G","3I","3D","3H","3F","3L","3K"],"CDFGHJKL":["3C","3G","3J","3D","3H","3F","3L","3K"],"CDFGIJKL":["3C","3G","3I","3D","3J","3F","3L","3K"],"CDFHIJKL":["3C","3J","3I","3D","3H","3F","3L","3K"],"CDGHIJKL":["3H","3G","3I","3C","3J","3D","3L","3K"],"CEFGHIJK":["3E","3G","3J","3C","3H","3F","3I","3K"],"CEFGHIJL":["3E","3G","3J","3C","3H","3F","3L","3I"],"CEFGHIKL":["3E","3G","3I","3C","3H","3F","3L","3K"],"CEFGHJKL":["3E","3G","3J","3C","3H","3F","3L","3K"],"CEFGIJKL":["3E","3G","3I","3C","3J","3F","3L","3K"],"CEFHIJKL":["3E","3J","3I","3C","3H","3F","3L","3K"],"CEGHIJKL":["3E","3J","3I","3C","3H","3G","3L","3K"],"CFGHIJKL":["3H","3G","3I","3C","3J","3F","3L","3K"],"DEFGHIJK":["3E","3G","3J","3D","3H","3F","3I","3K"],"DEFGHIJL":["3E","3G","3J","3D","3H","3F","3L","3I"],"DEFGHIKL":["3E","3G","3I","3D","3H","3F","3L","3K"],"DEFGHJKL":["3E","3G","3J","3D","3H","3F","3L","3K"],"DEFGIJKL":["3E","3G","3I","3D","3J","3F","3L","3K"],"DEFHIJKL":["3E","3J","3I","3D","3H","3F","3L","3K"],"DEGHIJKL":["3E","3J","3I","3D","3H","3G","3L","3K"],"DFGHIJKL":["3H","3G","3I","3D","3J","3F","3L","3K"],"EFGHIJKL":["3E","3J","3I","3F","3H","3G","3L","3K"]};
@@ -339,7 +361,7 @@ function buildR32(results) {
 }
 
 function buildPairedRound(pairs, roundId, r32Map) {
-  return pairs.map(([idA, idB, date], i) => {
+  return pairs.map(([idA, idB, date, time], i) => {
     const id = `${roundId}_${i+1}`;
     const home = getKoWinner(idA) || null;
     const away = getKoWinner(idB) || null;
@@ -348,7 +370,7 @@ function buildPairedRound(pairs, roundId, r32Map) {
     state.koScores[id].awayTeam = away;
     const sc = state.koScores[id];
     return {id, home, away, homeTeam:home, awayTeam:away,
-            hs:sc.hs??null, as:sc.as??null, date, label:''};
+            hs:sc.hs??null, as:sc.as??null, date, time, label:''};
   });
 }
 
@@ -379,6 +401,13 @@ function setPens(id, side, val, homeTeam, awayTeam) {
   render();
 }
 
+function setPred(id, side, val) {
+  if (!state.preds[id]) state.preds[id]={hs:null,as:null};
+  state.preds[id][side] = val===''?null:Math.max(0,parseInt(val)||0);
+  saveState();
+  render();
+}
+
 function updateInputStyle(el){el.classList.toggle('filled',el.value!=='');}
 
 // ─── RENDER HELPERS ──────────────────────────────────────────────────────────
@@ -393,38 +422,121 @@ function switchTab(tab){
 function filterGroup(g){activeGroup=g;render();}
 
 // ─── FIXTURES ────────────────────────────────────────────────────────────────
+function predictionPoints(pred, actual) {
+  // 3 = exact score, 1 = correct outcome (W/D/L), 0 = wrong, null = incomplete
+  if (!pred || pred.hs==null || pred.as==null) return null;
+  if (!actual || actual.hs==null || actual.as==null) return null;
+  const ph=+pred.hs, pa=+pred.as, ah=+actual.hs, aa=+actual.as;
+  if (ph===ah && pa===aa) return 3;
+  const po = ph>pa?1:ph<pa?-1:0;
+  const ao = ah>aa?1:ah<aa?-1:0;
+  return po===ao ? 1 : 0;
+}
+
+function predictorStats() {
+  let played=0, exact=0, outcome=0, pts=0, predicted=0;
+  // Group matches: prediction vs actual group score
+  for(const g of Object.values(RAW.groups))
+    for(const m of g.matches){
+      const pred=state.preds[m.id], act=state.scores[m.id];
+      if(pred&&pred.hs!=null&&pred.as!=null) predicted++;
+      const p=predictionPoints(pred, act);
+      if(p!=null){played++; pts+=p; if(p===3)exact++; else if(p===1)outcome++;}
+    }
+  // Knockout matches: prediction vs actual koScore
+  for(const id of Object.keys(state.preds)){
+    if(id.startsWith('R32_')||id.startsWith('R16_')||id.startsWith('QF_')||id.startsWith('SF_')||id.startsWith('FINAL')){
+      const pred=state.preds[id], act=state.koScores[id];
+      if(pred&&pred.hs!=null&&pred.as!=null) predicted++;
+      const p=predictionPoints(pred, act?{hs:act.hs,as:act.as}:null);
+      if(p!=null){played++; pts+=p; if(p===3)exact++; else if(p===1)outcome++;}
+    }
+  }
+  return {played, exact, outcome, pts, predicted};
+}
+
 function renderFixtures() {
   const groups=Object.keys(RAW.groups);
-  let html=`<div class="group-filter"><div class="gpill ${activeGroup==='ALL'?'active':''}" onclick="filterGroup('ALL')">All</div>`;
+
+  // Predictor summary banner
+  const ps=predictorStats();
+  let html=`<div class="predictor-banner">
+    <div class="pb-title">🔮 Your Predictions</div>
+    <div class="pb-stats">
+      <div class="pb-stat"><span class="pb-num">${ps.pts}</span><span class="pb-lbl">points</span></div>
+      <div class="pb-stat"><span class="pb-num">${ps.exact}</span><span class="pb-lbl">exact</span></div>
+      <div class="pb-stat"><span class="pb-num">${ps.outcome}</span><span class="pb-lbl">outcome</span></div>
+      <div class="pb-stat"><span class="pb-num">${ps.predicted}</span><span class="pb-lbl">predicted</span></div>
+    </div>
+    <div class="pb-note">Exact score = 3 pts · Correct result = 1 pt</div>
+  </div>`;
+
+  html+=`<div class="group-filter"><div class="gpill ${activeGroup==='ALL'?'active':''}" onclick="filterGroup('ALL')">All</div>`;
   groups.forEach(g=>html+=`<div class="gpill ${activeGroup===g?'active':''}" onclick="filterGroup('${g}')">Group ${g}</div>`);
   html+='</div>';
+
+  let all=[];
   const toShow=activeGroup==='ALL'?groups:[activeGroup];
   for(const g of toShow){
     for(const m of RAW.groups[g].matches){
-      const s=state.scores[m.id]||{hs:null,as:null};
-      const hv=s.hs??'', av=s.as??'';
-      const hc=s.hs!=null?'filled':'', ac=s.as!=null?'filled':'';
-      let res='';
-      if(s.hs!=null&&s.as!=null){
-        if(+s.hs>+s.as) res=`<div class="match-result result-hw">${m.home} win</div>`;
-        else if(+s.hs<+s.as) res=`<div class="match-result result-aw">${m.away} win</div>`;
-        else res=`<div class="match-result result-draw">Draw</div>`;
-      }
-      html+=`<div class="match-card">
-        <div class="match-meta"><span class="grp-badge">${g}</span><span>${m.date}</span></div>
-        <div class="match-row">
-          <div class="team-name home">${m.home}</div>
-          <input class="score-input ${hc}" type="number" min="0" value="${hv}" placeholder="–"
-            oninput="setGroupScore('${m.id}','hs',this.value);updateInputStyle(this)"
-            onfocus="this.select()" inputmode="numeric">
-          <div class="vs">vs</div>
-          <input class="score-input ${ac}" type="number" min="0" value="${av}" placeholder="–"
-            oninput="setGroupScore('${m.id}','as',this.value);updateInputStyle(this)"
-            onfocus="this.select()" inputmode="numeric">
-          <div class="team-name away">${m.away}</div>
-        </div>${res}</div>`;
+      all.push({...m, group:g});
     }
   }
+  all.sort((a,b)=>a.sk-b.sk);
+
+  let lastDate=null;
+  for(const m of all){
+    if(m.date!==lastDate){
+      html+=`<div class="date-header">${m.date}</div>`;
+      lastDate=m.date;
+    }
+    const s=state.scores[m.id]||{hs:null,as:null};
+    const hv=s.hs??'', av=s.as??'';
+    const hc=s.hs!=null?'filled':'', ac=s.as!=null?'filled':'';
+    let res='';
+    if(s.hs!=null&&s.as!=null){
+      if(+s.hs>+s.as) res=`<div class="match-result result-hw">${m.home} win</div>`;
+      else if(+s.hs<+s.as) res=`<div class="match-result result-aw">${m.away} win</div>`;
+      else res=`<div class="match-result result-draw">Draw</div>`;
+    }
+
+    // Predictor row
+    const p=state.preds[m.id]||{hs:null,as:null};
+    const phv=p.hs??'', pav=p.as??'';
+    const phc=p.hs!=null?'pred-filled':'', pac=p.as!=null?'pred-filled':'';
+    const pts=predictionPoints(p, s);
+    let predBadge='';
+    if(pts===3) predBadge=`<span class="pred-badge pred-3">✓ Exact +3</span>`;
+    else if(pts===1) predBadge=`<span class="pred-badge pred-1">✓ Result +1</span>`;
+    else if(pts===0) predBadge=`<span class="pred-badge pred-0">✗ +0</span>`;
+
+    html+=`<div class="match-card">
+      <div class="match-meta"><span class="grp-badge">${m.group}</span><span class="kickoff">${m.time}</span></div>
+      <div class="match-row">
+        <div class="team-name home">${m.home}</div>
+        <input class="score-input ${hc}" type="number" min="0" value="${hv}" placeholder="–"
+          oninput="setGroupScore('${m.id}','hs',this.value);updateInputStyle(this)"
+          onfocus="this.select()" inputmode="numeric">
+        <div class="vs">vs</div>
+        <input class="score-input ${ac}" type="number" min="0" value="${av}" placeholder="–"
+          oninput="setGroupScore('${m.id}','as',this.value);updateInputStyle(this)"
+          onfocus="this.select()" inputmode="numeric">
+        <div class="team-name away">${m.away}</div>
+      </div>${res}
+      <div class="pred-row">
+        <span class="pred-label">Predict</span>
+        <input class="pred-input ${phc}" type="number" min="0" value="${phv}" placeholder="–"
+          oninput="setPred('${m.id}','hs',this.value)"
+          onfocus="this.select()" inputmode="numeric">
+        <span class="pred-dash">–</span>
+        <input class="pred-input ${pac}" type="number" min="0" value="${pav}" placeholder="–"
+          oninput="setPred('${m.id}','as',this.value)"
+          onfocus="this.select()" inputmode="numeric">
+        ${predBadge}
+      </div>
+    </div>`;
+  }
+  html+=`<div class="tz-note">All kick-off times shown in UK time (BST). Predictions are just for fun — they don't affect the standings.</div>`;
   return html;
 }
 
@@ -568,6 +680,28 @@ function renderKoMatch(m, type='ko', dateStr='') {
   const badgeClass=type==='play-off'?'round-badge':'ko-badge';
   const badgeLabel=type==='play-off'?'Play-off':'KO';
 
+  // Predictor row — only show when both teams are known
+  let predHtml='';
+  if(m.home && m.away){
+    const pr=state.preds[m.id]||{hs:null,as:null};
+    const prHv=pr.hs??'', prAv=pr.as??'';
+    const prHc=pr.hs!=null?'pred-filled':'', prAc=pr.as!=null?'pred-filled':'';
+    const pts=predictionPoints(pr, {hs:sc.hs,as:sc.as});
+    let predBadge='';
+    if(pts===3) predBadge=`<span class="pred-badge pred-3">✓ Exact +3</span>`;
+    else if(pts===1) predBadge=`<span class="pred-badge pred-1">✓ Result +1</span>`;
+    else if(pts===0) predBadge=`<span class="pred-badge pred-0">✗ +0</span>`;
+    predHtml=`<div class="pred-row">
+      <span class="pred-label">Predict</span>
+      <input class="pred-input ${prHc}" type="number" min="0" value="${prHv}" placeholder="–"
+        oninput="setPred('${m.id}','hs',this.value)" onfocus="this.select()" inputmode="numeric">
+      <span class="pred-dash">–</span>
+      <input class="pred-input ${prAc}" type="number" min="0" value="${prAv}" placeholder="–"
+        oninput="setPred('${m.id}','as',this.value)" onfocus="this.select()" inputmode="numeric">
+      ${predBadge}
+    </div>`;
+  }
+
   return `<div class="bracket-match">
     <div class="bm-label">${m.label||''}${dateStr}</div>
     <div class="bm-row">
@@ -581,7 +715,7 @@ function renderKoMatch(m, type='ko', dateStr='') {
         onfocus="this.select()" inputmode="numeric" ${disabled}>
       <div class="bm-team ${!m.away?'tbd':''}" style="${awayStyle}">${m.away||'TBD'}</div>
     </div>
-    ${pensHtml}${winnerTag}
+    ${pensHtml}${predHtml}${winnerTag}
   </div>`;
 }
 
@@ -600,7 +734,7 @@ function renderKnockout() {
   const fsc = state.koScores[finId];
   const fin = [{id:finId, home:fsc.homeTeam, away:fsc.awayTeam,
                 homeTeam:fsc.homeTeam, awayTeam:fsc.awayTeam,
-                hs:fsc.hs??null, as:fsc.as??null, date:'Jul 19', label:''}];
+                hs:fsc.hs??null, as:fsc.as??null, date:'Jul 19', time:'20:00', label:''}];
 
   const roundConfigs = [
     {label:'Round of 32', matches:r32},
@@ -614,8 +748,8 @@ function renderKnockout() {
   for(const {label,matches} of roundConfigs){
     html+=`<div class="bracket-section"><div class="bracket-title">${label}</div>`;
     matches.forEach((m,i)=>{
-      // Build a readable label from the seeding
-      const dateStr = m.date ? `<span style="color:var(--muted);font-size:10px;font-weight:400;margin-left:6px">${m.date}</span>` : '';
+      const dt = [m.date, m.time].filter(Boolean).join(' · ');
+      const dateStr = dt ? `<span style="color:var(--muted);font-size:10px;font-weight:400;margin-left:6px">${dt}</span>` : '';
       m.label = m.label || `Match ${i+1}`;
       html+=renderKoMatch(m,'ko', dateStr);
     });
