@@ -127,6 +127,35 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .winner-tag{font-size:10px;color:var(--green);margin-top:4px;text-align:center;font-weight:600}
 .tbd-notice{text-align:center;font-size:12px;color:var(--muted);padding:20px;font-style:italic}
 
+/* Knockout view toggle */
+.ko-view-toggle{display:flex;gap:6px;margin-bottom:14px;background:var(--card);padding:4px;border-radius:10px;border:1px solid var(--border)}
+.ko-vt-btn{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:600;color:var(--muted);border-radius:7px;cursor:pointer;transition:all .15s;user-select:none}
+.ko-vt-btn.active{background:var(--accent);color:#fff}
+
+/* Wall chart */
+.wc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin:0 -12px;padding-left:12px;padding-right:12px}
+.wc-grid{display:flex;gap:10px;align-items:stretch;min-width:max-content}
+.wc-col{display:flex;flex-direction:column;min-width:120px}
+.wc-col-centre{min-width:150px}
+.wc-col-head{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-bottom:8px;flex-shrink:0}
+.wc-body{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:8px}
+.wc-col-centre .wc-body{justify-content:center;gap:14px}
+.wc-match{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 6px;font-size:11px}
+.wc-match-label{font-size:8px;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc-team{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;font-weight:600}
+.wc-team+.wc-team{margin-top:2px}
+.wc-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.wc-score{font-weight:800;color:var(--gold);min-width:14px;text-align:right}
+.wc-tbd .wc-name{color:var(--muted);font-style:italic;font-weight:400}
+.wc-win{background:rgba(46,204,113,.15)}
+.wc-win .wc-name{color:var(--green)}
+.wc-pens{font-size:8px;color:var(--purple);text-align:center;margin-top:2px}
+.wc-final-box{background:linear-gradient(135deg,#2a2410,#1a1a2e);border:2px solid var(--gold);border-radius:12px;padding:10px 8px;text-align:center}
+.wc-final-title{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px}
+.wc-final-sub{font-size:8px;color:var(--muted);margin-bottom:6px}
+.wc-final-box .wc-team{justify-content:center}
+.wc-champion{margin-top:8px;font-size:12px;font-weight:800;color:var(--gold);border-top:1px solid rgba(245,166,35,.3);padding-top:6px}
+
 .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:11px}
 .legend-item{display:flex;align-items:center;gap:5px}
 .legend-dot{width:10px;height:10px;border-radius:2px}
@@ -184,6 +213,7 @@ const STORAGE_KEY = 'wc2026_v3';
 let state = {scores:{}, koScores:{}, pens:{}, preds:{}};
 let activeTab = 'fixtures';
 let activeGroup = 'ALL';
+let koView = 'list';
 
 function loadState() {
   try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -381,6 +411,65 @@ function setGroupScore(id, side, val) {
   saveState();
   document.getElementById('progress-text').textContent=`${countPlayed()} / 72 played`;
   if (activeTab==='tables') render();
+  else if (activeTab==='fixtures') refreshPredBadge(id);
+}
+
+// Update just the prediction badge for one match without re-rendering the whole list
+// (a full render would steal focus from the score box being typed in)
+function refreshPredBadge(id){
+  const card=document.querySelector(`[data-match="${id}"]`);
+  if(!card) return;
+  const pr=state.preds[id], act=state.scores[id];
+  const pts=predictionPoints(pr, act);
+  let badge='';
+  if(pts===3) badge='<span class="pred-badge pred-3">✓ Exact +3</span>';
+  else if(pts===1) badge='<span class="pred-badge pred-1">✓ Result +1</span>';
+  else if(pts===0) badge='<span class="pred-badge pred-0">✗ +0</span>';
+  const slot=card.querySelector('.pred-badge-slot');
+  if(slot) slot.innerHTML=badge;
+  // Update the result line (Home win / Draw / Away win)
+  const m=findMatch(id);
+  const resSlot=card.querySelector('.result-slot');
+  if(resSlot && m){
+    let res='';
+    if(act&&act.hs!=null&&act.as!=null){
+      if(+act.hs>+act.as) res=`<div class="match-result result-hw">${m.home} win</div>`;
+      else if(+act.hs<+act.as) res=`<div class="match-result result-aw">${m.away} win</div>`;
+      else res=`<div class="match-result result-draw">Draw</div>`;
+    }
+    resSlot.innerHTML=res;
+  }
+  // Update the predictor summary banner totals
+  updatePredBanner();
+}
+
+function findMatch(id){
+  for(const g of Object.values(RAW.groups))
+    for(const m of g.matches) if(m.id===id) return m;
+  return null;
+}
+
+function updatePredBanner(){
+  const ps=predictorStats();
+  const map={'pb-pts':ps.pts,'pb-exact':ps.exact,'pb-outcome':ps.outcome,'pb-predicted':ps.predicted};
+  for(const [cls,val] of Object.entries(map)){
+    const el=document.querySelector('.'+cls);
+    if(el) el.textContent=val;
+  }
+}
+
+// Knockout: update just the prediction badge for one bracket match
+function refreshKoPredBadge(id){
+  const card=document.querySelector(`[data-ko="${id}"]`);
+  if(!card) return;
+  const pr=state.preds[id], act=state.koScores[id];
+  const pts=predictionPoints(pr, act?{hs:act.hs,as:act.as}:null);
+  let badge='';
+  if(pts===3) badge='<span class="pred-badge pred-3">✓ Exact +3</span>';
+  else if(pts===1) badge='<span class="pred-badge pred-1">✓ Result +1</span>';
+  else if(pts===0) badge='<span class="pred-badge pred-0">✗ +0</span>';
+  const slot=card.querySelector('.pred-badge-slot');
+  if(slot) slot.innerHTML=badge;
 }
 
 function setKoScore(id, side, val, homeTeam, awayTeam) {
@@ -405,7 +494,8 @@ function setPred(id, side, val) {
   if (!state.preds[id]) state.preds[id]={hs:null,as:null};
   state.preds[id][side] = val===''?null:Math.max(0,parseInt(val)||0);
   saveState();
-  render();
+  if (activeTab==='fixtures') refreshPredBadge(id);
+  else if (activeTab==='knockout') refreshKoPredBadge(id);
 }
 
 function updateInputStyle(el){el.classList.toggle('filled',el.value!=='');}
@@ -420,6 +510,7 @@ function switchTab(tab){
 }
 
 function filterGroup(g){activeGroup=g;render();}
+function setKoView(v){koView=v;render();}
 
 // ─── FIXTURES ────────────────────────────────────────────────────────────────
 function predictionPoints(pred, actual) {
@@ -463,10 +554,10 @@ function renderFixtures() {
   let html=`<div class="predictor-banner">
     <div class="pb-title">🔮 Your Predictions</div>
     <div class="pb-stats">
-      <div class="pb-stat"><span class="pb-num">${ps.pts}</span><span class="pb-lbl">points</span></div>
-      <div class="pb-stat"><span class="pb-num">${ps.exact}</span><span class="pb-lbl">exact</span></div>
-      <div class="pb-stat"><span class="pb-num">${ps.outcome}</span><span class="pb-lbl">outcome</span></div>
-      <div class="pb-stat"><span class="pb-num">${ps.predicted}</span><span class="pb-lbl">predicted</span></div>
+      <div class="pb-stat"><span class="pb-num pb-pts">${ps.pts}</span><span class="pb-lbl">points</span></div>
+      <div class="pb-stat"><span class="pb-num pb-exact">${ps.exact}</span><span class="pb-lbl">exact</span></div>
+      <div class="pb-stat"><span class="pb-num pb-outcome">${ps.outcome}</span><span class="pb-lbl">outcome</span></div>
+      <div class="pb-stat"><span class="pb-num pb-predicted">${ps.predicted}</span><span class="pb-lbl">predicted</span></div>
     </div>
     <div class="pb-note">Exact score = 3 pts · Correct result = 1 pt</div>
   </div>`;
@@ -510,7 +601,7 @@ function renderFixtures() {
     else if(pts===1) predBadge=`<span class="pred-badge pred-1">✓ Result +1</span>`;
     else if(pts===0) predBadge=`<span class="pred-badge pred-0">✗ +0</span>`;
 
-    html+=`<div class="match-card">
+    html+=`<div class="match-card" data-match="${m.id}">
       <div class="match-meta"><span class="grp-badge">${m.group}</span><span class="kickoff">${m.time}</span></div>
       <div class="match-row">
         <div class="team-name home">${m.home}</div>
@@ -522,7 +613,7 @@ function renderFixtures() {
           oninput="setGroupScore('${m.id}','as',this.value);updateInputStyle(this)"
           onfocus="this.select()" inputmode="numeric">
         <div class="team-name away">${m.away}</div>
-      </div>${res}
+      </div><div class="result-slot">${res}</div>
       <div class="pred-row">
         <span class="pred-label">Predict</span>
         <input class="pred-input ${phc}" type="number" min="0" value="${phv}" placeholder="–"
@@ -532,7 +623,7 @@ function renderFixtures() {
         <input class="pred-input ${pac}" type="number" min="0" value="${pav}" placeholder="–"
           oninput="setPred('${m.id}','as',this.value)"
           onfocus="this.select()" inputmode="numeric">
-        ${predBadge}
+        <span class="pred-badge-slot">${predBadge}</span>
       </div>
     </div>`;
   }
@@ -698,11 +789,11 @@ function renderKoMatch(m, type='ko', dateStr='') {
       <span class="pred-dash">–</span>
       <input class="pred-input ${prAc}" type="number" min="0" value="${prAv}" placeholder="–"
         oninput="setPred('${m.id}','as',this.value)" onfocus="this.select()" inputmode="numeric">
-      ${predBadge}
+      <span class="pred-badge-slot">${predBadge}</span>
     </div>`;
   }
 
-  return `<div class="bracket-match">
+  return `<div class="bracket-match" data-ko="${m.id}">
     <div class="bm-label">${m.label||''}${dateStr}</div>
     <div class="bm-row">
       <div class="bm-team right ${!m.home?'tbd':''}" style="${homeStyle}">${m.home||'TBD'}</div>
@@ -736,6 +827,17 @@ function renderKnockout() {
                 homeTeam:fsc.homeTeam, awayTeam:fsc.awayTeam,
                 hs:fsc.hs??null, as:fsc.as??null, date:'Jul 19', time:'20:00', label:''}];
 
+  const rounds = {r32, r16, qf, sf, fin};
+
+  // View toggle
+  let html=`<div class="ko-view-toggle">
+    <div class="ko-vt-btn ${koView==='list'?'active':''}" onclick="setKoView('list')">📋 List</div>
+    <div class="ko-vt-btn ${koView==='chart'?'active':''}" onclick="setKoView('chart')">🏆 Wall Chart</div>
+  </div>`;
+
+  if(koView==='chart') return html + renderKoWallchart(rounds);
+
+  // ── List view ──
   const roundConfigs = [
     {label:'Round of 32', matches:r32},
     {label:'Round of 16', matches:r16},
@@ -744,7 +846,6 @@ function renderKnockout() {
     {label:'Final 🏆', matches:fin},
   ];
 
-  let html='';
   for(const {label,matches} of roundConfigs){
     html+=`<div class="bracket-section"><div class="bracket-title">${label}</div>`;
     matches.forEach((m,i)=>{
@@ -763,6 +864,95 @@ function renderKnockout() {
     </div>`;
   }
 
+  return html;
+}
+
+// ─── WALL CHART ──────────────────────────────────────────────────────────────
+function koTeamLine(team, score, isWinner){
+  const cls = isWinner ? 'wc-team wc-win' : (team ? 'wc-team' : 'wc-team wc-tbd');
+  const sc = score!=null ? score : '';
+  return `<div class="${cls}"><span class="wc-name">${team||'TBD'}</span><span class="wc-score">${sc}</span></div>`;
+}
+
+function wcMatch(m){
+  const w=getKoWinner(m.id);
+  const homeWin = w && w===m.home;
+  const awayWin = w && w===m.away;
+  const dt=[m.date,m.time].filter(Boolean).join(' · ');
+  const pens=state.pens[m.id];
+  let pensStr='';
+  if(pens&&pens.h!=null&&pens.a!=null) pensStr=`<div class="wc-pens">pens ${pens.h}–${pens.a}</div>`;
+  return `<div class="wc-match" data-ko="${m.id}">
+    <div class="wc-match-label">${m.label||''}${dt?` · ${dt}`:''}</div>
+    ${koTeamLine(m.home, m.hs, homeWin)}
+    ${koTeamLine(m.away, m.as, awayWin)}
+    ${pensStr}
+  </div>`;
+}
+
+function renderKoWallchart(R){
+  // Label the matches like the list view does
+  R.r32.forEach((m,i)=>m.label=m.label||`Match ${i+1}`);
+  R.r16.forEach((m,i)=>m.label=m.label||`R16 ${i+1}`);
+  R.qf.forEach((m,i)=>m.label=m.label||`QF ${i+1}`);
+  R.sf.forEach((m,i)=>m.label=m.label||`SF ${i+1}`);
+  R.fin.forEach(m=>m.label='Final');
+
+  // Left half indices: R32 matches 0-7 feed R16 0-3 feed QF 0-1 feed SF 0
+  // Right half: R32 8-15 feed R16 4-7 feed QF 2-3 feed SF 1
+  // (Our R16_PAIRS order already groups them; map by position)
+  const champion=getKoWinner('FINAL_1');
+
+  let html=`<div class="wc-scroll"><div class="wc-grid">`;
+
+  // Column: Round of 32 (left) — matches 0-7
+  html+=`<div class="wc-col"><div class="wc-col-head">Round of 32</div><div class="wc-body">`;
+  for(let i=0;i<8;i++) html+=wcMatch(R.r32[i]);
+  html+=`</div></div>`;
+
+  // Round of 16 (left) — 0-3
+  html+=`<div class="wc-col"><div class="wc-col-head">Round of 16</div><div class="wc-body">`;
+  for(let i=0;i<4;i++) html+=wcMatch(R.r16[i]);
+  html+=`</div></div>`;
+
+  // Quarter-finals (left) — 0-1
+  html+=`<div class="wc-col"><div class="wc-col-head">Quarter-finals</div><div class="wc-body">`;
+  for(let i=0;i<2;i++) html+=wcMatch(R.qf[i]);
+  html+=`</div></div>`;
+
+  // Centre column: SF, Final, champion, SF
+  html+=`<div class="wc-col wc-col-centre">
+    <div class="wc-col-head">Semis &amp; Final</div>
+    <div class="wc-body">
+      ${wcMatch(R.sf[0])}
+      <div class="wc-final-box">
+        <div class="wc-final-title">🏆 FINAL</div>
+        <div class="wc-final-sub">${R.fin[0].date} · ${R.fin[0].time}</div>
+        ${koTeamLine(R.fin[0].home, R.fin[0].hs, champion&&champion===R.fin[0].home)}
+        ${koTeamLine(R.fin[0].away, R.fin[0].as, champion&&champion===R.fin[0].away)}
+        ${champion?`<div class="wc-champion">🏆 ${champion}</div>`:''}
+      </div>
+      ${wcMatch(R.sf[1])}
+    </div>
+  </div>`;
+
+  // Quarter-finals (right) — 2-3
+  html+=`<div class="wc-col"><div class="wc-col-head">Quarter-finals</div><div class="wc-body">`;
+  for(let i=2;i<4;i++) html+=wcMatch(R.qf[i]);
+  html+=`</div></div>`;
+
+  // Round of 16 (right) — 4-7
+  html+=`<div class="wc-col"><div class="wc-col-head">Round of 16</div><div class="wc-body">`;
+  for(let i=4;i<8;i++) html+=wcMatch(R.r16[i]);
+  html+=`</div></div>`;
+
+  // Round of 32 (right) — 8-15
+  html+=`<div class="wc-col"><div class="wc-col-head">Round of 32</div><div class="wc-body">`;
+  for(let i=8;i<16;i++) html+=wcMatch(R.r32[i]);
+  html+=`</div></div>`;
+
+  html+=`</div></div>`;
+  html+=`<div class="tz-note">Pinch or scroll horizontally to see the full bracket. Enter scores in the List view.</div>`;
   return html;
 }
 
