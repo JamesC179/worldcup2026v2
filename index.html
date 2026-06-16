@@ -230,6 +230,7 @@ function getGroupStats(gKey) {
   const {teams, matches} = RAW.groups[gKey];
   const s = {};
   teams.forEach(t => s[t]={name:t,pld:0,w:0,d:0,l:0,gf:0,ga:0,pts:0,group:gKey});
+  const played = []; // played matches for head-to-head: {home,away,hs,as}
   for (const m of matches) {
     const sc = state.scores[m.id];
     if (!sc || sc.hs===null||sc.as===null||sc.hs===undefined||sc.as===undefined) continue;
@@ -240,9 +241,82 @@ function getGroupStats(gKey) {
     if(hs>as){s[m.home].w++;s[m.home].pts+=3;s[m.away].l++;}
     else if(hs<as){s[m.away].w++;s[m.away].pts+=3;s[m.home].l++;}
     else{s[m.home].d++;s[m.home].pts++;s[m.away].d++;s[m.away].pts++;}
+    played.push({home:m.home, away:m.away, hs, as});
   }
-  return Object.values(s).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name-b.name)
-    .map((t,i)=>({...t,gd:t.gf-t.ga,pos:i+1}));
+  // Add goal difference to each team
+  Object.values(s).forEach(t=>t.gd=t.gf-t.ga);
+
+  const sorted = sortGroupTeams(Object.values(s), played);
+  return sorted.map((t,i)=>({...t, pos:i+1}));
+}
+
+// FIFA 2026 group-stage tiebreakers, applied in order:
+//   1. Points  2. Head-to-head points  3. Head-to-head GD  4. Head-to-head GF
+//   5. Overall GD  6. Overall GF  7. Fair play* 8. FIFA ranking*  (*not available — alphabetical fallback)
+function sortGroupTeams(teamsArr, played) {
+  // Head-to-head mini-table among a given subset of teams
+  function h2h(subset){
+    const names=new Set(subset.map(t=>t.name));
+    const mini={};
+    subset.forEach(t=>mini[t.name]={pts:0,gd:0,gf:0});
+    for(const m of played){
+      if(names.has(m.home)&&names.has(m.away)){
+        const {hs,as}=m;
+        mini[m.home].gf+=hs; mini[m.home].gd+=(hs-as);
+        mini[m.away].gf+=as; mini[m.away].gd+=(as-hs);
+        if(hs>as) mini[m.home].pts+=3;
+        else if(hs<as) mini[m.away].pts+=3;
+        else { mini[m.home].pts++; mini[m.away].pts++; }
+      }
+    }
+    return mini;
+  }
+
+  // Break a tie among teams level on overall points
+  function breakTie(tied){
+    if(tied.length===1) return tied;
+    const mini=h2h(tied);
+    const ordered=[...tied].sort((a,b)=>
+      mini[b.name].pts-mini[a.name].pts ||
+      mini[b.name].gd -mini[a.name].gd  ||
+      mini[b.name].gf -mini[a.name].gf
+    );
+    // Walk through, grouping teams that remain identical on head-to-head
+    const out=[];
+    let i=0;
+    while(i<ordered.length){
+      let j=i+1;
+      while(j<ordered.length &&
+        mini[ordered[j].name].pts===mini[ordered[i].name].pts &&
+        mini[ordered[j].name].gd ===mini[ordered[i].name].gd  &&
+        mini[ordered[j].name].gf ===mini[ordered[i].name].gf) j++;
+      const sub=ordered.slice(i,j);
+      if(sub.length===tied.length){
+        // Head-to-head produced no separation → overall GD, GF, then alphabetical
+        sub.sort((a,b)=> b.gd-a.gd || b.gf-a.gf || a.name.localeCompare(b.name));
+        out.push(...sub);
+      } else if(sub.length>1){
+        // Some teams separated; re-apply head-to-head to the still-tied subset
+        out.push(...breakTie(sub));
+      } else {
+        out.push(sub[0]);
+      }
+      i=j;
+    }
+    return out;
+  }
+
+  // Sort by points first, then resolve ties within each points band
+  const byPts=[...teamsArr].sort((a,b)=>b.pts-a.pts);
+  const final=[];
+  let i=0;
+  while(i<byPts.length){
+    let j=i+1;
+    while(j<byPts.length && byPts[j].pts===byPts[i].pts) j++;
+    final.push(...breakTie(byPts.slice(i,j)));
+    i=j;
+  }
+  return final;
 }
 
 function getAllGroupResults() {
@@ -253,8 +327,8 @@ function getAllGroupResults() {
     runners[g] = sorted[1]?.name || null;
     if (sorted[2]) thirds.push({...sorted[2], group:g});
   }
-  // Sort 3rd-place teams: pts → gd → gf
-  thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+  // 3rd-place ranking is across groups (they never meet) → overall pts, GD, GF, then alphabetical
+  thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name));
   return {winners, runners, thirds};
 }
 
