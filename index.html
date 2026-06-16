@@ -94,17 +94,22 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .group-section{margin-bottom:18px}
 .group-title{font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--accent);padding:8px 12px;background:var(--card);border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;display:flex;align-items:center;gap:8px}
 .group-title span{color:var(--muted);font-size:11px;font-weight:400;margin-left:auto}
-.standings-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:0 0 8px 8px;overflow:hidden}
-.standings-table th{font-size:10px;font-weight:600;color:var(--muted);padding:6px 4px;text-align:center;background:#16182e;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
+.standings-table{width:100%;table-layout:fixed;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:0 0 8px 8px;overflow:hidden}
+.standings-table th{font-size:10px;font-weight:600;color:var(--muted);padding:6px 2px;text-align:center;background:#16182e;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
 .standings-table th.team-col{text-align:left;padding-left:10px}
-.standings-table td{font-size:12px;padding:8px 4px;text-align:center;border-bottom:1px solid #1a1c36}
-.standings-table td.team-col{text-align:left;padding-left:10px;font-weight:600;font-size:13px}
+.standings-table td{font-size:12px;padding:8px 2px;text-align:center;border-bottom:1px solid #1a1c36}
+.standings-table td.team-col{text-align:left;padding-left:10px;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .standings-table tr:last-child td{border-bottom:none}
 .standings-table tr.qualify td{background:#1a2a1a}
 .standings-table tr.playoff td{background:#1a1a2a}
 .standings-table tr.qualify td.pos{color:var(--green);font-weight:700}
 .standings-table tr.playoff td.pos{color:var(--blue);font-weight:700}
-.pos{color:var(--muted);font-size:11px;font-weight:700;width:20px}
+/* Fixed column widths so every group's table lines up identically */
+.standings-table col.c-pos{width:24px}
+.standings-table col.c-team{width:auto}
+.standings-table col.c-stat{width:30px}
+.standings-table col.c-pts{width:34px}
+.pos{color:var(--muted);font-size:11px;font-weight:700}
 .pts{font-weight:700;color:var(--gold)}
 .gd-pos{color:var(--green)}
 .gd-neg{color:var(--red)}
@@ -715,7 +720,9 @@ function renderTables() {
     const sorted=getGroupStats(g);
     const played=sorted.reduce((s,t)=>s+t.pld,0)/2;
     html+=`<div class="group-section"><div class="group-title">Group ${g}<span>${played} played</span></div>
-      <table class="standings-table"><thead><tr>
+      <table class="standings-table">
+      <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-pts"></colgroup>
+      <thead><tr>
         <th class="pos">#</th><th class="team-col">Team</th>
         <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th class="pts">Pts</th>
       </tr></thead><tbody>`;
@@ -749,7 +756,9 @@ function renderPlayoffs() {
   }
 
   html+=`<div class="group-section"><div class="group-title" style="color:var(--blue)">3rd-place team rankings</div>
-    <table class="standings-table"><thead><tr>
+    <table class="standings-table">
+    <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-pts"><col style="width:48px"></colgroup>
+    <thead><tr>
       <th class="pos">#</th>
       <th class="team-col">Team</th>
       <th>Grp</th>
