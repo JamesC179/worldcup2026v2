@@ -235,6 +235,10 @@ function loadState() {
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
 // ─── GROUP STATS ─────────────────────────────────────────────────────────────
+// FIFA/Coca-Cola Men's World Ranking positions (lower = better), used as final tiebreaker
+const FIFA_RANK={"Argentina":1,"France":2,"Spain":3,"England":4,"Portugal":5,"Brazil":6,"Morocco":7,"Netherlands":8,"Germany":9,"Belgium":10,"Croatia":11,"Mexico":13,"Colombia":14,"USA":15,"Senegal":16,"Japan":17,"Uruguay":18,"Switzerland":19,"South Korea":21,"Australia":22,"Iran":23,"Austria":24,"Turkey":26,"Algeria":27,"Ecuador":28,"Egypt":29,"Ivory Coast":30,"Norway":31,"Canada":32,"Panama":34,"Sweden":35,"Scotland":38,"Paraguay":42,"Czech Republic":43,"DR Congo":45,"Qatar":49,"Uzbekistan":50,"Tunisia":56,"Iraq":57,"Saudi Arabia":60,"South Africa":61,"Bosnia & Herzegovina":63,"Cape Verde":64,"Jordan":65,"Ghana":73,"New Zealand":82,"Curacao":83,"Haiti":85};
+function fifaRank(name){ return FIFA_RANK[name] || 999; }
+
 function getGroupStats(gKey) {
   const {teams, matches} = RAW.groups[gKey];
   const s = {};
@@ -302,7 +306,7 @@ function sortGroupTeams(teamsArr, played) {
       const sub=ordered.slice(i,j);
       if(sub.length===tied.length){
         // Head-to-head produced no separation → overall GD, GF, then alphabetical
-        sub.sort((a,b)=> b.gd-a.gd || b.gf-a.gf || a.name.localeCompare(b.name));
+        sub.sort((a,b)=> b.gd-a.gd || b.gf-a.gf || fifaRank(a.name)-fifaRank(b.name) || a.name.localeCompare(b.name));
         out.push(...sub);
       } else if(sub.length>1){
         // Some teams separated; re-apply head-to-head to the still-tied subset
@@ -337,7 +341,7 @@ function getAllGroupResults() {
     if (sorted[2]) thirds.push({...sorted[2], group:g});
   }
   // 3rd-place ranking is across groups (they never meet) → overall pts, GD, GF, then alphabetical
-  thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.name.localeCompare(b.name));
+  thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||fifaRank(a.name)-fifaRank(b.name)||a.name.localeCompare(b.name));
   return {winners, runners, thirds};
 }
 
