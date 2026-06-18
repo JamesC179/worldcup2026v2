@@ -51,11 +51,11 @@ body{display:flex;flex-direction:column;overflow:hidden}
 /* Predictor */
 .predictor-banner{background:linear-gradient(135deg,#241b3a,#1a1a2e);border:1px solid var(--purple);border-radius:14px;padding:14px;margin-bottom:14px}
 .pb-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px}
-.pb-stats{display:flex;gap:8px}
-.pb-stat{flex:1;text-align:center;background:rgba(155,89,182,.12);border-radius:10px;padding:8px 4px}
-.pb-num{display:block;font-size:20px;font-weight:800;color:var(--purple)}
+.pb-stats{display:flex;gap:5px}
+.pb-stat{flex:1;text-align:center;background:rgba(155,89,182,.12);border-radius:9px;padding:7px 2px;min-width:0}
+.pb-num{display:block;font-size:18px;font-weight:800;color:var(--purple)}
 .pb-stat:first-child .pb-num{color:var(--gold)}
-.pb-lbl{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pb-lbl{display:block;font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pb-note{font-size:10px;color:var(--muted);text-align:center;margin-top:9px;font-style:italic}
 .pred-row{display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
 .pred-label{font-size:11px;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
@@ -66,6 +66,7 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .pred-dash{color:var(--muted);font-size:12px}
 .pred-badge{margin-left:auto;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
 .pred-3{background:rgba(46,204,113,.18);color:var(--green)}
+.pred-2{background:rgba(245,166,35,.18);color:var(--gold)}
 .pred-1{background:rgba(52,152,219,.18);color:var(--blue)}
 .pred-0{background:rgba(231,76,60,.15);color:var(--red)}
 .match-row{display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:6px;align-items:center}
@@ -527,6 +528,7 @@ function refreshPredBadge(id){
   const pts=predictionPoints(pr, act);
   let badge='';
   if(pts===3) badge='<span class="pred-badge pred-3">✓ Exact +3</span>';
+  else if(pts===2) badge='<span class="pred-badge pred-2">✓ Aggregate +2</span>';
   else if(pts===1) badge='<span class="pred-badge pred-1">✓ Result +1</span>';
   else if(pts===0) badge='<span class="pred-badge pred-0">✗ +0</span>';
   const slot=card.querySelector('.pred-badge-slot');
@@ -555,7 +557,7 @@ function findMatch(id){
 
 function updatePredBanner(){
   const ps=predictorStats();
-  const map={'pb-pts':ps.pts,'pb-exact':ps.exact,'pb-outcome':ps.outcome,'pb-predicted':ps.predicted};
+  const map={'pb-pts':ps.pts,'pb-exact':ps.exact,'pb-aggregate':ps.aggregate,'pb-outcome':ps.outcome,'pb-predicted':ps.predicted};
   for(const [cls,val] of Object.entries(map)){
     const el=document.querySelector('.'+cls);
     if(el) el.textContent=val;
@@ -570,6 +572,7 @@ function refreshKoPredBadge(id){
   const pts=predictionPoints(pr, act?{hs:act.hs,as:act.as}:null);
   let badge='';
   if(pts===3) badge='<span class="pred-badge pred-3">✓ Exact +3</span>';
+  else if(pts===2) badge='<span class="pred-badge pred-2">✓ Aggregate +2</span>';
   else if(pts===1) badge='<span class="pred-badge pred-1">✓ Result +1</span>';
   else if(pts===0) badge='<span class="pred-badge pred-0">✗ +0</span>';
   const slot=card.querySelector('.pred-badge-slot');
@@ -618,25 +621,27 @@ function setKoView(v){koView=v;render();}
 
 // ─── FIXTURES ────────────────────────────────────────────────────────────────
 function predictionPoints(pred, actual) {
-  // 3 = exact score, 1 = correct outcome (W/D/L), 0 = wrong, null = incomplete
+  // 3 = exact score, 2 = correct goal difference (aggregate), 1 = correct outcome, 0 = wrong, null = incomplete
   if (!pred || pred.hs==null || pred.as==null) return null;
   if (!actual || actual.hs==null || actual.as==null) return null;
   const ph=+pred.hs, pa=+pred.as, ah=+actual.hs, aa=+actual.as;
-  if (ph===ah && pa===aa) return 3;
+  if (ph===ah && pa===aa) return 3;          // exact score
+  if ((ph-pa) === (ah-aa)) return 2;         // same goal difference (implies correct outcome)
   const po = ph>pa?1:ph<pa?-1:0;
   const ao = ah>aa?1:ah<aa?-1:0;
-  return po===ao ? 1 : 0;
+  return po===ao ? 1 : 0;                     // correct outcome only
 }
 
 function predictorStats() {
-  let played=0, exact=0, outcome=0, pts=0, predicted=0;
+  let played=0, exact=0, aggregate=0, outcome=0, pts=0, predicted=0;
+  function tally(p){ played++; pts+=p; if(p===3)exact++; else if(p===2)aggregate++; else if(p===1)outcome++; }
   // Group matches: prediction vs actual group score
   for(const g of Object.values(RAW.groups))
     for(const m of g.matches){
       const pred=state.preds[m.id], act=state.scores[m.id];
       if(pred&&pred.hs!=null&&pred.as!=null) predicted++;
       const p=predictionPoints(pred, act);
-      if(p!=null){played++; pts+=p; if(p===3)exact++; else if(p===1)outcome++;}
+      if(p!=null) tally(p);
     }
   // Knockout matches: prediction vs actual koScore
   for(const id of Object.keys(state.preds)){
@@ -644,10 +649,10 @@ function predictorStats() {
       const pred=state.preds[id], act=state.koScores[id];
       if(pred&&pred.hs!=null&&pred.as!=null) predicted++;
       const p=predictionPoints(pred, act?{hs:act.hs,as:act.as}:null);
-      if(p!=null){played++; pts+=p; if(p===3)exact++; else if(p===1)outcome++;}
+      if(p!=null) tally(p);
     }
   }
-  return {played, exact, outcome, pts, predicted};
+  return {played, exact, aggregate, outcome, pts, predicted};
 }
 
 function renderFixtures() {
@@ -660,10 +665,11 @@ function renderFixtures() {
     <div class="pb-stats">
       <div class="pb-stat"><span class="pb-num pb-pts">${ps.pts}</span><span class="pb-lbl">points</span></div>
       <div class="pb-stat"><span class="pb-num pb-exact">${ps.exact}</span><span class="pb-lbl">exact</span></div>
+      <div class="pb-stat"><span class="pb-num pb-aggregate">${ps.aggregate}</span><span class="pb-lbl">aggregate</span></div>
       <div class="pb-stat"><span class="pb-num pb-outcome">${ps.outcome}</span><span class="pb-lbl">outcome</span></div>
       <div class="pb-stat"><span class="pb-num pb-predicted">${ps.predicted}</span><span class="pb-lbl">predicted</span></div>
     </div>
-    <div class="pb-note">Exact score = 3 pts · Correct result = 1 pt</div>
+    <div class="pb-note">Exact score = 3 · Correct aggregate = 2 · Correct result = 1</div>
   </div>`;
 
   html+=`<div class="group-filter"><div class="gpill ${activeGroup==='ALL'?'active':''}" onclick="filterGroup('ALL')">All</div>`;
@@ -702,6 +708,7 @@ function renderFixtures() {
     const pts=predictionPoints(p, s);
     let predBadge='';
     if(pts===3) predBadge=`<span class="pred-badge pred-3">✓ Exact +3</span>`;
+    else if(pts===2) predBadge=`<span class="pred-badge pred-2">✓ Aggregate +2</span>`;
     else if(pts===1) predBadge=`<span class="pred-badge pred-1">✓ Result +1</span>`;
     else if(pts===0) predBadge=`<span class="pred-badge pred-0">✗ +0</span>`;
 
@@ -939,6 +946,7 @@ function renderKoMatch(m, type='ko', dateStr='') {
     const pts=predictionPoints(pr, {hs:sc.hs,as:sc.as});
     let predBadge='';
     if(pts===3) predBadge=`<span class="pred-badge pred-3">✓ Exact +3</span>`;
+    else if(pts===2) predBadge=`<span class="pred-badge pred-2">✓ Aggregate +2</span>`;
     else if(pts===1) predBadge=`<span class="pred-badge pred-1">✓ Result +1</span>`;
     else if(pts===0) predBadge=`<span class="pred-badge pred-0">✗ +0</span>`;
     predHtml=`<div class="pred-row">
