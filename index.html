@@ -95,7 +95,11 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .et-label{text-align:center;font-size:10px;color:var(--purple);margin-top:4px;font-weight:600}
 
 .group-section{margin-bottom:18px}
-.group-title{font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--accent);padding:8px 12px;background:var(--card);border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;display:flex;align-items:center;gap:8px}
+.group-title{font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--accent);padding:8px 12px;background:var(--card);border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;display:flex;align-items:center;gap:8px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.reorder-cell{white-space:nowrap;padding:2px 4px!important}
+.reorder-arrow{background:var(--card);border:1px solid var(--border);color:var(--text);width:22px;height:22px;border-radius:5px;font-size:9px;line-height:1;cursor:pointer;padding:0;margin:0 1px}
+.reorder-arrow:disabled{opacity:.25;cursor:default}
+.reorder-arrow:active:not(:disabled){background:var(--accent);border-color:var(--accent)}
 .group-title span{color:var(--muted);font-size:11px;font-weight:400;margin-left:auto}
 .standings-table{width:100%;table-layout:fixed;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:0 0 8px 8px;overflow:hidden}
 .standings-table th{font-size:10px;font-weight:600;color:var(--muted);padding:6px 2px;text-align:center;background:#16182e;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px}
@@ -219,10 +223,11 @@ const KO_ROUNDS = [
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'wc2026_v3';
-let state = {scores:{}, koScores:{}, pens:{}, preds:{}};
+let state = {scores:{}, koScores:{}, pens:{}, preds:{}, manualOrder:{}};
 let activeTab = 'fixtures';
 let activeGroup = 'ALL';
 let koView = 'list';
+let reorderGroup = null; // group letter currently in manual-reorder mode
 
 function loadState() {
   try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -230,7 +235,8 @@ function loadState() {
     state.koScores= state.koScores|| {};
     state.pens    = state.pens    || {};
     state.preds   = state.preds   || {};
-  } catch(e) { state = {scores:{},koScores:{},pens:{},preds:{}}; }
+    state.manualOrder = state.manualOrder || {};
+  } catch(e) { state = {scores:{},koScores:{},pens:{},preds:{},manualOrder:{}}; }
 }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
@@ -259,8 +265,19 @@ function getGroupStats(gKey) {
   // Add goal difference to each team
   Object.values(s).forEach(t=>t.gd=t.gf-t.ga);
 
-  const sorted = sortGroupTeams(Object.values(s), played);
-  return sorted.map((t,i)=>({...t, pos:i+1}));
+  let sorted = sortGroupTeams(Object.values(s), played);
+
+  // Apply manual override if the user has set one for this group
+  const mo = state.manualOrder && state.manualOrder[gKey];
+  if (mo && mo.length === sorted.length) {
+    const byName = {};
+    sorted.forEach(t => byName[t.name] = t);
+    const reordered = mo.map(n => byName[n]).filter(Boolean);
+    // Only use it if it covers every team (guards against team-name changes)
+    if (reordered.length === sorted.length) sorted = reordered;
+  }
+
+  return sorted.map((t,i)=>({...t, pos:i+1, manual: !!mo}));
 }
 
 // FIFA 2026 group-stage tiebreakers, applied in order:
@@ -727,24 +744,73 @@ function renderTables() {
   for(const [g] of Object.entries(RAW.groups)){
     const sorted=getGroupStats(g);
     const played=sorted.reduce((s,t)=>s+t.pld,0)/2;
-    html+=`<div class="group-section"><div class="group-title">Group ${g}<span>${played} played</span></div>
+    const editing = reorderGroup===g;
+    const isManual = sorted.length && sorted[0].manual;
+    const titleExtra = editing
+      ? `<span style="margin-left:auto;display:flex;gap:8px;align-items:center">
+           <span style="color:var(--gold);font-size:10px;font-weight:700">REORDER</span>
+           <span onclick="resetGroupOrder('${g}')" style="color:var(--blue);font-size:10px;cursor:pointer">Auto</span>
+           <span onclick="exitReorder()" style="color:var(--muted);font-size:10px;cursor:pointer">Done</span>
+         </span>`
+      : `<span>${played} played${isManual?' · ✎':''}</span>`;
+    html+=`<div class="group-section"><div class="group-title" oncontextmenu="enterReorder(event,'${g}')" ontouchstart="startTitlePress(event,'${g}')" ontouchend="cancelTitlePress()" ontouchmove="cancelTitlePress()">Group ${g}${titleExtra}</div>
       <table class="standings-table">
-      <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-pts"></colgroup>
+      <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="${editing?'c-stat':'c-pts'}">${editing?'<col style="width:54px">':''}</colgroup>
       <thead><tr>
         <th class="pos">#</th><th class="team-col">Team</th>
-        <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th class="pts">Pts</th>
+        <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th class="pts">Pts</th>${editing?'<th></th>':''}
       </tr></thead><tbody>`;
     sorted.forEach((t,i)=>{
       const cls=i<2?'qualify':i===2?'playoff':'';
       const gdC=t.gd>0?'gd-pos':t.gd<0?'gd-neg':'';
       const gdS=t.pld>0?(t.gd>0?`+${t.gd}`:`${t.gd}`):'–';
+      const arrows = editing
+        ? `<td class="reorder-cell">
+             <button class="reorder-arrow" ${i===0?'disabled':''} onclick="moveTeam('${g}',${i},-1)">▲</button>
+             <button class="reorder-arrow" ${i===sorted.length-1?'disabled':''} onclick="moveTeam('${g}',${i},1)">▼</button>
+           </td>`
+        : '';
       html+=`<tr class="${cls}"><td class="pos">${i+1}</td><td class="team-col">${t.name}</td>
         <td>${t.pld}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
-        <td>${t.gf}</td><td>${t.ga}</td><td class="${gdC}">${gdS}</td><td class="pts">${t.pts}</td></tr>`;
+        <td>${t.gf}</td><td>${t.ga}</td><td class="${gdC}">${gdS}</td><td class="pts">${t.pts}</td>${arrows}</tr>`;
     });
     html+=`</tbody></table></div>`;
   }
   return html;
+}
+
+// ─── MANUAL REORDER (discreet override) ──────────────────────────────────────
+let _titlePressTimer=null;
+function startTitlePress(e, g){
+  cancelTitlePress();
+  _titlePressTimer=setTimeout(()=>{ enterReorder(e, g); }, 600);
+}
+function cancelTitlePress(){ if(_titlePressTimer){ clearTimeout(_titlePressTimer); _titlePressTimer=null; } }
+function enterReorder(e, g){
+  if(e&&e.preventDefault) e.preventDefault();
+  reorderGroup = g;
+  // Seed manualOrder from current displayed order if not already set
+  if(!state.manualOrder[g]){
+    state.manualOrder[g] = getGroupStats(g).map(t=>t.name);
+    saveState();
+  }
+  render();
+  return false;
+}
+function exitReorder(){ reorderGroup=null; render(); }
+function moveTeam(g, idx, dir){
+  let order = (state.manualOrder[g] || getGroupStats(g).map(t=>t.name)).slice();
+  const j = idx + dir;
+  if(j<0||j>=order.length) return;
+  [order[idx], order[j]] = [order[j], order[idx]];
+  state.manualOrder[g] = order;
+  saveState();
+  render();
+}
+function resetGroupOrder(g){
+  delete state.manualOrder[g];
+  saveState();
+  render();
 }
 
 // ─── PLAY-OFFS ───────────────────────────────────────────────────────────────
