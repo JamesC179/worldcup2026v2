@@ -676,6 +676,11 @@ function renderFixtures() {
   groups.forEach(g=>html+=`<div class="gpill ${activeGroup===g?'active':''}" onclick="filterGroup('${g}')">Group ${g}</div>`);
   html+='</div>';
 
+  // When viewing a single group, show its standings table at the top
+  if(activeGroup!=='ALL' && RAW.groups[activeGroup]){
+    html+=`<div style="margin-bottom:16px">${renderGroupTable(activeGroup)}</div>`;
+  }
+
   let all=[];
   const toShow=activeGroup==='ALL'?groups:[activeGroup];
   for(const g of toShow){
@@ -743,46 +748,50 @@ function renderFixtures() {
 }
 
 // ─── TABLES ──────────────────────────────────────────────────────────────────
+// Build a single group's standings table (also reused on the Fixtures tab)
+function renderGroupTable(g) {
+  const sorted=getGroupStats(g);
+  const played=sorted.reduce((s,t)=>s+t.pld,0)/2;
+  const editing = reorderGroup===g;
+  const isManual = sorted.length && sorted[0].manual;
+  const titleExtra = editing
+    ? `<span style="margin-left:auto;display:flex;gap:8px;align-items:center">
+         <span style="color:var(--gold);font-size:10px;font-weight:700">REORDER</span>
+         <span onclick="resetGroupOrder('${g}')" style="color:var(--blue);font-size:10px;cursor:pointer">Auto</span>
+         <span onclick="exitReorder()" style="color:var(--muted);font-size:10px;cursor:pointer">Done</span>
+       </span>`
+    : `<span>${played} played${isManual?' · ✎':''}</span>`;
+  let html=`<div class="group-section"><div class="group-title" oncontextmenu="enterReorder(event,'${g}')" ontouchstart="startTitlePress(event,'${g}')" ontouchend="cancelTitlePress()" ontouchmove="cancelTitlePress()">Group ${g}${titleExtra}</div>
+    <table class="standings-table">
+    <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="${editing?'c-stat':'c-pts'}">${editing?'<col style="width:54px">':''}</colgroup>
+    <thead><tr>
+      <th class="pos">#</th><th class="team-col">Team</th>
+      <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th class="pts">Pts</th>${editing?'<th></th>':''}
+    </tr></thead><tbody>`;
+  sorted.forEach((t,i)=>{
+    const cls=i<2?'qualify':i===2?'playoff':'';
+    const gdC=t.gd>0?'gd-pos':t.gd<0?'gd-neg':'';
+    const gdS=t.pld>0?(t.gd>0?`+${t.gd}`:`${t.gd}`):'–';
+    const arrows = editing
+      ? `<td class="reorder-cell">
+           <button class="reorder-arrow" ${i===0?'disabled':''} onclick="moveTeam('${g}',${i},-1)">▲</button>
+           <button class="reorder-arrow" ${i===sorted.length-1?'disabled':''} onclick="moveTeam('${g}',${i},1)">▼</button>
+         </td>`
+      : '';
+    html+=`<tr class="${cls}"><td class="pos">${i+1}</td><td class="team-col">${t.name}</td>
+      <td>${t.pld}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+      <td>${t.gf}</td><td>${t.ga}</td><td class="${gdC}">${gdS}</td><td class="pts">${t.pts}</td>${arrows}</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  return html;
+}
+
 function renderTables() {
   let html=`<div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span style="color:var(--muted);font-size:11px">Advance to R32</span></div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span style="color:var(--muted);font-size:11px">Possible play-off</span></div>
   </div>`;
-  for(const [g] of Object.entries(RAW.groups)){
-    const sorted=getGroupStats(g);
-    const played=sorted.reduce((s,t)=>s+t.pld,0)/2;
-    const editing = reorderGroup===g;
-    const isManual = sorted.length && sorted[0].manual;
-    const titleExtra = editing
-      ? `<span style="margin-left:auto;display:flex;gap:8px;align-items:center">
-           <span style="color:var(--gold);font-size:10px;font-weight:700">REORDER</span>
-           <span onclick="resetGroupOrder('${g}')" style="color:var(--blue);font-size:10px;cursor:pointer">Auto</span>
-           <span onclick="exitReorder()" style="color:var(--muted);font-size:10px;cursor:pointer">Done</span>
-         </span>`
-      : `<span>${played} played${isManual?' · ✎':''}</span>`;
-    html+=`<div class="group-section"><div class="group-title" oncontextmenu="enterReorder(event,'${g}')" ontouchstart="startTitlePress(event,'${g}')" ontouchend="cancelTitlePress()" ontouchmove="cancelTitlePress()">Group ${g}${titleExtra}</div>
-      <table class="standings-table">
-      <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="${editing?'c-stat':'c-pts'}">${editing?'<col style="width:54px">':''}</colgroup>
-      <thead><tr>
-        <th class="pos">#</th><th class="team-col">Team</th>
-        <th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th class="pts">Pts</th>${editing?'<th></th>':''}
-      </tr></thead><tbody>`;
-    sorted.forEach((t,i)=>{
-      const cls=i<2?'qualify':i===2?'playoff':'';
-      const gdC=t.gd>0?'gd-pos':t.gd<0?'gd-neg':'';
-      const gdS=t.pld>0?(t.gd>0?`+${t.gd}`:`${t.gd}`):'–';
-      const arrows = editing
-        ? `<td class="reorder-cell">
-             <button class="reorder-arrow" ${i===0?'disabled':''} onclick="moveTeam('${g}',${i},-1)">▲</button>
-             <button class="reorder-arrow" ${i===sorted.length-1?'disabled':''} onclick="moveTeam('${g}',${i},1)">▼</button>
-           </td>`
-        : '';
-      html+=`<tr class="${cls}"><td class="pos">${i+1}</td><td class="team-col">${t.name}</td>
-        <td>${t.pld}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
-        <td>${t.gf}</td><td>${t.ga}</td><td class="${gdC}">${gdS}</td><td class="pts">${t.pts}</td>${arrows}</tr>`;
-    });
-    html+=`</tbody></table></div>`;
-  }
+  for(const g of Object.keys(RAW.groups)) html+=renderGroupTable(g);
   return html;
 }
 
