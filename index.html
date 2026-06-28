@@ -117,6 +117,9 @@ body{display:flex;flex-direction:column;overflow:hidden}
 .standings-table col.c-team{width:auto}
 .standings-table col.c-stat{width:30px}
 .standings-table col.c-pts{width:34px}
+/* 3rd-place table has fewer stat columns, so give the team name room */
+.thirds-table col.c-team{width:auto}
+.thirds-table td.team-col,.thirds-table th.team-col{min-width:96px}
 .pos{color:var(--muted);font-size:11px;font-weight:700}
 .pts{font-weight:700;color:var(--gold)}
 .gd-pos{color:var(--green)}
@@ -358,8 +361,15 @@ function getAllGroupResults() {
     runners[g] = sorted[1]?.name || null;
     if (sorted[2]) thirds.push({...sorted[2], group:g});
   }
-  // 3rd-place ranking is across groups (they never meet) → overall pts, GD, GF, then alphabetical
+  // 3rd-place ranking is across groups (they never meet) → overall pts, GD, GF, FIFA rank, then alphabetical
   thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||fifaRank(a.name)-fifaRank(b.name)||a.name.localeCompare(b.name));
+  // Apply manual override if the user has reordered the 3rd-place table
+  const mo = state.manualOrder && state.manualOrder.THIRDS;
+  if(mo && mo.length){
+    const byName={}; thirds.forEach(t=>byName[t.name]=t);
+    const reordered = mo.map(n=>byName[n]).filter(Boolean);
+    if(reordered.length===thirds.length) return {winners, runners, thirds:reordered};
+  }
   return {winners, runners, thirds};
 }
 
@@ -832,6 +842,8 @@ function resetGroupOrder(g){
 // ─── PLAY-OFFS ───────────────────────────────────────────────────────────────
 function renderPlayoffs() {
   const {thirds} = getAllGroupResults();
+  const isManual = !!(state.manualOrder && state.manualOrder.THIRDS && state.manualOrder.THIRDS.length);
+  const editing = reorderGroup==='THIRDS';
 
   let html=`<div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8;background:var(--card);padding:12px;border-radius:10px;border:1px solid var(--border)">
     <strong style="color:var(--text)">How it works:</strong> All 12 third-place teams are ranked by points, then goal difference, then goals scored. The <strong style="color:var(--green)">top 8 advance</strong> directly to the Round of 32. The <strong style="color:var(--accent)">bottom 4 are eliminated</strong> — there are no play-off matches.
@@ -845,22 +857,26 @@ function renderPlayoffs() {
     html += `<div style="font-size:11px;color:var(--muted);margin-bottom:12px;font-style:italic">${groupsDone}/12 groups complete — table updates as results are entered</div>`;
   }
 
-  html+=`<div class="group-section"><div class="group-title" style="color:var(--blue)">3rd-place team rankings</div>
-    <table class="standings-table">
-    <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-pts"><col style="width:48px"></colgroup>
+  const titleExtra = editing
+    ? `<span style="margin-left:auto;display:flex;gap:8px;align-items:center">
+         <span style="color:var(--gold);font-size:10px;font-weight:700">REORDER</span>
+         <span onclick="resetGroupOrder('THIRDS')" style="color:var(--blue);font-size:10px;cursor:pointer">Auto</span>
+         <span onclick="exitReorder()" style="color:var(--muted);font-size:10px;cursor:pointer">Done</span>
+       </span>`
+    : `<span style="margin-left:auto;color:var(--muted);font-size:11px">${isManual?'✎ ':''}12 teams</span>`;
+
+  html+=`<div class="group-section"><div class="group-title" style="color:var(--blue)" oncontextmenu="enterReorderThirds(event)" ontouchstart="startThirdsPress(event)" ontouchend="cancelTitlePress()" ontouchmove="cancelTitlePress()">3rd-place rankings${titleExtra}</div>
+    <table class="standings-table thirds-table">
+    <colgroup><col class="c-pos"><col class="c-team"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-stat"><col class="c-pts"><col style="width:46px">${editing?'<col style="width:54px">':''}</colgroup>
     <thead><tr>
       <th class="pos">#</th>
       <th class="team-col">Team</th>
       <th>Grp</th>
       <th>P</th>
-      <th>W</th>
-      <th>D</th>
-      <th>L</th>
-      <th>GF</th>
-      <th>GA</th>
       <th>GD</th>
+      <th>GF</th>
       <th class="pts">Pts</th>
-      <th>Status</th>
+      <th>Status</th>${editing?'<th></th>':''}
     </tr></thead><tbody>`;
 
   thirds.forEach((t,i)=>{
@@ -871,23 +887,25 @@ function renderPlayoffs() {
     const cls = advances ? 'qualify' : '';
     const gdS = t.pld>0 ? (t.gd>0?`+${t.gd}`:`${t.gd}`) : '–';
     const gdC = t.gd>0?'gd-pos':t.gd<0?'gd-neg':'';
+    const arrows = editing
+      ? `<td class="reorder-cell">
+           <button class="reorder-arrow" ${i===0?'disabled':''} onclick="moveThird(${i},-1)">▲</button>
+           <button class="reorder-arrow" ${i===thirds.length-1?'disabled':''} onclick="moveThird(${i},1)">▼</button>
+         </td>`
+      : '';
     html+=`<tr class="${cls}">
       <td class="pos">${i+1}</td>
       <td class="team-col">${t.name||'TBD'}</td>
       <td style="color:var(--muted);font-size:11px">${t.group}</td>
       <td>${t.pld}</td>
-      <td>${t.w}</td>
-      <td>${t.d}</td>
-      <td>${t.l}</td>
-      <td>${t.gf}</td>
-      <td>${t.ga}</td>
       <td class="${gdC}">${gdS}</td>
+      <td>${t.gf}</td>
       <td class="pts">${t.pts}</td>
-      <td>${status}</td>
-    </tr>`;
+      <td>${status}</td>${arrows}</tr>`;
   });
 
   // Pad with TBD rows for groups not yet complete
+  const colspan = editing ? 9 : 8;
   for(let i=thirds.length; i<12; i++){
     const status = i<8
       ? `<span style="color:var(--green);font-size:11px">✓ R32</span>`
@@ -895,18 +913,40 @@ function renderPlayoffs() {
     html+=`<tr>
       <td class="pos" style="color:var(--muted)">${i+1}</td>
       <td class="team-col" style="color:var(--muted);font-style:italic">TBD</td>
-      <td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td>
-      <td class="pts">–</td><td>${status}</td>
+      <td>–</td><td>–</td><td>–</td><td>–</td>
+      <td class="pts">–</td><td>${status}</td>${editing?'<td></td>':''}
     </tr>`;
   }
 
   // Cutoff line explanation
-  html+=`<tr><td colspan="12" style="text-align:center;font-size:10px;color:var(--muted);padding:6px;border-top:2px dashed var(--accent);font-style:italic">
+  html+=`<tr><td colspan="${colspan}" style="text-align:center;font-size:10px;color:var(--muted);padding:6px;border-top:2px dashed var(--accent);font-style:italic">
     ── Top 8 advance · Bottom 4 eliminated ──
   </td></tr>`;
 
   html+=`</tbody></table></div>`;
   return html;
+}
+
+// Manual reorder helpers for the 3rd-place table
+function startThirdsPress(e){ cancelTitlePress(); _titlePressTimer=setTimeout(()=>enterReorderThirds(e),600); }
+function enterReorderThirds(e){
+  if(e&&e.preventDefault) e.preventDefault();
+  reorderGroup='THIRDS';
+  if(!state.manualOrder.THIRDS){
+    state.manualOrder.THIRDS = getAllGroupResults().thirds.map(t=>t.name);
+    saveState();
+  }
+  render();
+  return false;
+}
+function moveThird(idx, dir){
+  let order = (state.manualOrder.THIRDS || getAllGroupResults().thirds.map(t=>t.name)).slice();
+  const j=idx+dir;
+  if(j<0||j>=order.length) return;
+  [order[idx],order[j]]=[order[j],order[idx]];
+  state.manualOrder.THIRDS=order;
+  saveState();
+  render();
 }
 
 // ─── KNOCKOUT ────────────────────────────────────────────────────────────────
