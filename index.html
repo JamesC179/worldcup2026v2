@@ -150,26 +150,27 @@ body{display:flex;flex-direction:column;overflow:hidden}
 
 /* Wall chart */
 .wc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;margin:0 -12px;padding-left:12px;padding-right:12px}
-.wc-grid{display:flex;gap:10px;align-items:stretch;min-width:max-content}
-.wc-col{display:flex;flex-direction:column;min-width:120px}
-.wc-col-centre{min-width:150px}
+.wc-grid{display:flex;gap:12px;align-items:stretch;min-width:max-content;padding:4px 0}
+.wc-col{display:flex;flex-direction:column;min-width:134px}
+.wc-col-centre{min-width:158px}
 .wc-col-head{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;text-align:center;margin-bottom:8px;flex-shrink:0}
 .wc-body{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:8px}
-.wc-col-centre .wc-body{justify-content:center;gap:14px}
-.wc-match{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 6px;font-size:11px}
-.wc-match-label{font-size:8px;color:var(--muted);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wc-team{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;font-weight:600}
-.wc-team+.wc-team{margin-top:2px}
-.wc-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.wc-col-centre .wc-body{justify-content:center;gap:16px}
+.wc-match{background:#11131f;border:1px solid var(--border);border-radius:8px;padding:0;font-size:11px;overflow:hidden}
+.wc-match-label{font-size:8px;color:var(--muted);padding:3px 6px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.03)}
+.wc-team{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:5px 7px;font-weight:600}
+.wc-team+.wc-team{border-top:1px solid #1d2030}
+.wc-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:108px}
 .wc-score{font-weight:800;color:var(--gold);min-width:14px;text-align:right}
-.wc-tbd .wc-name{color:var(--muted);font-style:italic;font-weight:400}
+.wc-tbd .wc-name{color:var(--muted);font-style:italic;font-weight:400;font-size:10px}
 .wc-win{background:rgba(46,204,113,.15)}
 .wc-win .wc-name{color:var(--green)}
-.wc-pens{font-size:8px;color:var(--purple);text-align:center;margin-top:2px}
+.wc-pens{font-size:8px;color:var(--purple);text-align:center;padding:2px}
 .wc-final-box{background:linear-gradient(135deg,#2a2410,#1a1a2e);border:2px solid var(--gold);border-radius:12px;padding:10px 8px;text-align:center}
 .wc-final-title{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px}
-.wc-final-sub{font-size:8px;color:var(--muted);margin-bottom:6px}
-.wc-final-box .wc-team{justify-content:center}
+.wc-final-sub{font-size:8px;color:var(--muted);margin-bottom:8px}
+.wc-final-box .wc-team{justify-content:center;border:none;background:transparent}
+.wc-final-box .wc-team+.wc-team{border-top:1px solid rgba(245,166,35,.2)}
 .wc-champion{margin-top:8px;font-size:12px;font-weight:800;color:var(--gold);border-top:1px solid rgba(245,166,35,.3);padding-top:6px}
 
 .legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:11px}
@@ -1086,91 +1087,102 @@ function renderKnockout() {
 }
 
 // ─── WALL CHART ──────────────────────────────────────────────────────────────
+// Map internal IDs → FIFA match numbers (matches the official schedule)
+const FIFA_MATCH_NO = (()=>{
+  const m={};
+  for(let i=1;i<=16;i++) m['R32_'+i]=72+i;   // R32 = 73..88
+  for(let i=1;i<=8;i++)  m['R16_'+i]=88+i;    // R16 = 89..96
+  for(let i=1;i<=4;i++)  m['QF_'+i]=96+i;     // QF  = 97..100
+  m['SF_1']=101; m['SF_2']=102; m['FINAL_1']=104;
+  return m;
+})();
+
+// What feeds each match (for "Winner Match N" labels on empty slots)
+const FEEDS = {
+  R16_1:['R32_2','R32_5'], R16_2:['R32_1','R32_3'], R16_3:['R32_4','R32_6'], R16_4:['R32_7','R32_8'],
+  R16_5:['R32_11','R32_12'], R16_6:['R32_9','R32_10'], R16_7:['R32_14','R32_16'], R16_8:['R32_13','R32_15'],
+  QF_1:['R16_1','R16_2'], QF_2:['R16_5','R16_6'], QF_3:['R16_3','R16_4'], QF_4:['R16_7','R16_8'],
+  SF_1:['QF_1','QF_2'], SF_2:['QF_3','QF_4'], FINAL_1:['SF_1','SF_2'],
+};
+
 function koTeamLine(team, score, isWinner){
   const cls = isWinner ? 'wc-team wc-win' : (team ? 'wc-team' : 'wc-team wc-tbd');
   const sc = score!=null ? score : '';
   return `<div class="${cls}"><span class="wc-name">${team||'TBD'}</span><span class="wc-score">${sc}</span></div>`;
 }
 
-function wcMatch(m){
+// A bracket cell. `feederIds` lets an empty slot show "Winner Match N".
+function wcMatch(m, feederIds){
   const w=getKoWinner(m.id);
   const homeWin = w && w===m.home;
   const awayWin = w && w===m.away;
+  const no = FIFA_MATCH_NO[m.id];
   const dt=[m.date,m.time].filter(Boolean).join(' · ');
   const pens=state.pens[m.id];
   let pensStr='';
   if(pens&&pens.h!=null&&pens.a!=null) pensStr=`<div class="wc-pens">pens ${pens.h}–${pens.a}</div>`;
+  // For empty home/away, show "Winner Match N" of the feeding match
+  const homeLabel = m.home || (feederIds ? `Winner Match ${FIFA_MATCH_NO[feederIds[0]]}` : 'TBD');
+  const awayLabel = m.away || (feederIds ? `Winner Match ${FIFA_MATCH_NO[feederIds[1]]}` : 'TBD');
+  const homeCls = homeWin?'wc-team wc-win':(m.home?'wc-team':'wc-team wc-tbd');
+  const awayCls = awayWin?'wc-team wc-win':(m.away?'wc-team':'wc-team wc-tbd');
   return `<div class="wc-match" data-ko="${m.id}">
-    <div class="wc-match-label">${m.label||''}${dt?` · ${dt}`:''}</div>
-    ${koTeamLine(m.home, m.hs, homeWin)}
-    ${koTeamLine(m.away, m.as, awayWin)}
+    <div class="wc-match-label">Match ${no}${dt?` · ${dt}`:''}</div>
+    <div class="${homeCls}"><span class="wc-name">${homeLabel}</span><span class="wc-score">${m.hs!=null?m.hs:''}</span></div>
+    <div class="${awayCls}"><span class="wc-name">${awayLabel}</span><span class="wc-score">${m.as!=null?m.as:''}</span></div>
     ${pensStr}
   </div>`;
 }
 
 function renderKoWallchart(R){
-  // Label the matches like the list view does
-  R.r32.forEach((m,i)=>m.label=m.label||`Match ${i+1}`);
-  R.r16.forEach((m,i)=>m.label=m.label||`R16 ${i+1}`);
-  R.qf.forEach((m,i)=>m.label=m.label||`QF ${i+1}`);
-  R.sf.forEach((m,i)=>m.label=m.label||`SF ${i+1}`);
-  R.fin.forEach(m=>m.label='Final');
-
-  // Left half indices: R32 matches 0-7 feed R16 0-3 feed QF 0-1 feed SF 0
-  // Right half: R32 8-15 feed R16 4-7 feed QF 2-3 feed SF 1
-  // (Our R16_PAIRS order already groups them; map by position)
   const champion=getKoWinner('FINAL_1');
+  const byId={};
+  [...R.r32,...R.r16,...R.qf,...R.sf,...R.fin].forEach(m=>byId[m.id]=m);
+
+  // Build columns from match IDs. LEFT half feeds SF_1, RIGHT half feeds SF_2.
+  // R32 ordering within each half follows the bracket so lines read top→bottom.
+  const leftR32  = ['R32_2','R32_5','R32_1','R32_3','R32_11','R32_12','R32_9','R32_10'];
+  const leftR16  = ['R16_1','R16_2','R16_5','R16_6'];
+  const leftQF   = ['QF_1','QF_2'];
+  const rightR32 = ['R32_4','R32_6','R32_7','R32_8','R32_14','R32_16','R32_13','R32_15'];
+  const rightR16 = ['R16_3','R16_4','R16_7','R16_8'];
+  const rightQF  = ['QF_3','QF_4'];
+
+  const col = (head, ids, cls='') =>
+    `<div class="wc-col ${cls}"><div class="wc-col-head">${head}</div><div class="wc-body">`
+    + ids.map(id=>wcMatch(byId[id], FEEDS[id])).join('')
+    + `</div></div>`;
 
   let html=`<div class="wc-scroll"><div class="wc-grid">`;
 
-  // Column: Round of 32 (left) — matches 0-7
-  html+=`<div class="wc-col"><div class="wc-col-head">Round of 32</div><div class="wc-body">`;
-  for(let i=0;i<8;i++) html+=wcMatch(R.r32[i]);
-  html+=`</div></div>`;
+  // LEFT side: R32 → R16 → QF
+  html+=col('Last 32', leftR32);
+  html+=col('Last 16', leftR16);
+  html+=col('Quarter-finals', leftQF);
 
-  // Round of 16 (left) — 0-3
-  html+=`<div class="wc-col"><div class="wc-col-head">Round of 16</div><div class="wc-body">`;
-  for(let i=0;i<4;i++) html+=wcMatch(R.r16[i]);
-  html+=`</div></div>`;
-
-  // Quarter-finals (left) — 0-1
-  html+=`<div class="wc-col"><div class="wc-col-head">Quarter-finals</div><div class="wc-body">`;
-  for(let i=0;i<2;i++) html+=wcMatch(R.qf[i]);
-  html+=`</div></div>`;
-
-  // Centre column: SF, Final, champion, SF
-  html+=`<div class="wc-col wc-col-centre">
-    <div class="wc-col-head">Semis &amp; Final</div>
-    <div class="wc-body">
-      ${wcMatch(R.sf[0])}
-      <div class="wc-final-box">
-        <div class="wc-final-title">🏆 FINAL</div>
-        <div class="wc-final-sub">${R.fin[0].date} · ${R.fin[0].time}</div>
-        ${koTeamLine(R.fin[0].home, R.fin[0].hs, champion&&champion===R.fin[0].home)}
-        ${koTeamLine(R.fin[0].away, R.fin[0].as, champion&&champion===R.fin[0].away)}
-        ${champion?`<div class="wc-champion">🏆 ${champion}</div>`:''}
-      </div>
-      ${wcMatch(R.sf[1])}
+  // CENTRE: SF1, Final, SF2
+  html+=`<div class="wc-col wc-col-centre"><div class="wc-col-head">Semis &amp; Final</div><div class="wc-body">
+    ${wcMatch(byId['SF_1'], FEEDS['SF_1'])}
+    <div class="wc-final-box">
+      <div class="wc-final-title">🏆 FINAL</div>
+      <div class="wc-final-sub">Match 104 · ${R.fin[0].date} · ${R.fin[0].time}</div>
+      ${(()=>{const f=byId['FINAL_1'];const hl=f.home||'Winner Match 101';const al=f.away||'Winner Match 102';
+        const hc=champion&&champion===f.home?'wc-team wc-win':(f.home?'wc-team':'wc-team wc-tbd');
+        const ac=champion&&champion===f.away?'wc-team wc-win':(f.away?'wc-team':'wc-team wc-tbd');
+        return `<div class="${hc}"><span class="wc-name">${hl}</span><span class="wc-score">${f.hs!=null?f.hs:''}</span></div>
+                <div class="${ac}"><span class="wc-name">${al}</span><span class="wc-score">${f.as!=null?f.as:''}</span></div>`;})()}
+      ${champion?`<div class="wc-champion">🏆 ${champion}</div>`:''}
     </div>
-  </div>`;
+    ${wcMatch(byId['SF_2'], FEEDS['SF_2'])}
+  </div></div>`;
 
-  // Quarter-finals (right) — 2-3
-  html+=`<div class="wc-col"><div class="wc-col-head">Quarter-finals</div><div class="wc-body">`;
-  for(let i=2;i<4;i++) html+=wcMatch(R.qf[i]);
-  html+=`</div></div>`;
-
-  // Round of 16 (right) — 4-7
-  html+=`<div class="wc-col"><div class="wc-col-head">Round of 16</div><div class="wc-body">`;
-  for(let i=4;i<8;i++) html+=wcMatch(R.r16[i]);
-  html+=`</div></div>`;
-
-  // Round of 32 (right) — 8-15
-  html+=`<div class="wc-col"><div class="wc-col-head">Round of 32</div><div class="wc-body">`;
-  for(let i=8;i<16;i++) html+=wcMatch(R.r32[i]);
-  html+=`</div></div>`;
+  // RIGHT side: QF → R16 → R32 (mirrored)
+  html+=col('Quarter-finals', rightQF);
+  html+=col('Last 16', rightR16);
+  html+=col('Last 32', rightR32);
 
   html+=`</div></div>`;
-  html+=`<div class="tz-note">Pinch or scroll horizontally to see the full bracket. Enter scores in the List view.</div>`;
+  html+=`<div class="tz-note">Scroll horizontally to see the full bracket. Empty slots show which match's winner fills them. Enter scores in the List view.</div>`;
   return html;
 }
 
